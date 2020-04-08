@@ -8,7 +8,12 @@ display.setStatusBar( display.HiddenStatusBar )
 -----------------------------------------------------------------------------------------
 
 -- Your code here
+--Pakker
+local physics =  require('physics')
+physics.start()
+
 local gameLoopTimer
+
 -- Screen size
 local screenW, screenH, halfW, halfH = display.viewableContentWidth, display.viewableContentHeight, display.viewableContentWidth*0.5, display.viewableContentHeight*0.5
 
@@ -67,11 +72,13 @@ local ovreGrense = 8
 local aktuellRad = numberOfRows-1 --Raden spilleren er på
 local aktuelleKolonner = {-4,-3,-2,-1,0} --Raden de ligger på, startsbrikker
 local retning = "hoyre"
-local brikkeHastighet = 0.5 * (aktuellRad*10)
+local brikkeHastighet = 100
+local brikkeHastighetsFaktor = 1
 
 --Legger den nederste raden med blokker
 for i = minGrense, ovreGrense do
-  addBuildingBlock(i,numberOfRows)
+  local temp = addBuildingBlock(i,numberOfRows)
+  physics.addBody(temp, "static")
 end
 
 local function flyttBrikker()
@@ -150,6 +157,10 @@ local function klikk()
   end
 
   aktuellRad = aktuellRad - 1
+  --brikkeHastighet = brikkeHastighet - brikkeHastighetsFaktor
+  print("Brikkehastighet: " .. brikkeHastighet)
+  --gameLoopTimer = timer.performWithDelay( brikkeHastighet, gameLoop, 0  )
+
 end
 
 Runtime:addEventListener( "tap", klikk )
