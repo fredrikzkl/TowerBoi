@@ -78,9 +78,11 @@ local ovreGrense = 8
 local aktuellRad = numberOfRows-1 --Raden spilleren er på
 local aktuelleKolonner = {-4,-3,-2,-1,0} --Raden de ligger på, startsbrikker
 local retning = "hoyre"
-local brikkeHastighet = 150
+local brikkeHastighet, OGBrikkeHastighet = 150,150
+
 local hastighetsFaktor = 10
 local okningsTid = 3000
+local maksBrikkeHastighet = 20
 
 local debrisTable = {}
 
@@ -141,6 +143,9 @@ end
 local function gameLoop()
 
   if(#aktuelleKolonner == 0) then --Dersom listen er tom, har man tapt
+		timer.cancel(gameLoopTimer)
+		local result = (numberOfRows - aktuellRad) - 1
+		print("Ferdig! Du bygget et hus på " .. result )
   end
 
   flyttBrikker()
@@ -183,10 +188,11 @@ local function lagRester(colPos) --Lager blokker som er påvirket av fysikken, m
 	table.insert(debrisTable, tempDeb)
 	physics.addBody( tempDeb , 'dynamic', {bounce = 0.4} )
 	local torque = 0
+	local factor = 1
 	if retning == "hoyre" then
-		torque = -1
+		torque = -1 * factor
 	elseif retning == "venstre" then
-		torque = 1
+		torque = 1 * factor
 	end
 
 	tempDeb:applyTorque(torque)
@@ -224,7 +230,11 @@ local function klikk(event)
 
 
 		--Øker hastigheten!
-		brikkeHastighet = brikkeHastighet - hastighetsFaktor
+		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
+			brikkeHastighet = brikkeHastighet - hastighetsFaktor
+		else
+			print("MAKS HASTIGHET LEL")
+		end
 		timer.cancel(gameLoopTimer)
 		gameLoopTimer = nil
 		gameLoopTimer = timer.performWithDelay(brikkeHastighet, gameLoop, 0)
