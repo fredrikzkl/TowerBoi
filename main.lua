@@ -79,7 +79,7 @@ local aktuellRad = numberOfRows-1 --Raden spilleren er på
 local aktuelleKolonner = {-4,-3,-2,-1,0} --Raden de ligger på, startsbrikker
 local retning = "hoyre"
 local brikkeHastighet = 150
-local hastighetsFaktor = 15
+local hastighetsFaktor = 10
 local okningsTid = 3000
 
 local debrisTable = {}
