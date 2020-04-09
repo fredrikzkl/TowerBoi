@@ -11,10 +11,14 @@ display.setStatusBar( display.HiddenStatusBar )
 --Pakker
 math.randomseed( os.time() )
 local physics =  require('physics')
+local composer = require('composer')
+local scene = composer.newScene()
+local currScene = composer.getSceneName( "main" )
+
 physics.start()
 physics.setGravity( 0, 8 )
 
-
+local font = "Font/light_pixel-7.ttf"
 local time = system.getTimer()
 local gameLoopTimer
 
@@ -143,9 +147,18 @@ end
 local function gameLoop()
 
   if(#aktuelleKolonner == 0) then --Dersom listen er tom, har man tapt
+		Runtime:removeEventListener( "touch", klikk )
 		timer.cancel(gameLoopTimer)
 		local result = (numberOfRows - aktuellRad) - 1
 		print("Ferdig! Du bygget et hus på " .. result )
+		display.newText("GG, bro", halfW, halfH*0.5, font, 50)
+		display.newText("Poeng: " .. result, halfW, halfH*0.65, font, 30)
+
+		local playAgain = display.newText("Spill igjen!", halfW, screenH-100, font, 50)
+		playAgain:addEventListener( "tap", restartGame )
+
+		--display.newText("GG, bro", halfW, halfH, font, 40)
+
   end
 
   flyttBrikker()
@@ -243,3 +256,7 @@ local function klikk(event)
 end
 
 Runtime:addEventListener( "touch", klikk )
+
+function restartGame()
+	composer.gotoScene( 'main' )
+end
