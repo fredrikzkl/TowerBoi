@@ -10,8 +10,17 @@ local scene = composer.newScene()
 
 local physics =  require('physics')
 physics.start()
+local font = "Font/light_pixel-7.ttf"
 
 physics.setGravity( 0, 8 )
+
+local colors = {
+  green = {82, 190, 128},
+  blue = {52, 152, 219},
+  orange = {245, 176, 65},
+  red = {236, 112, 99},
+  yellow = {247, 220, 111}
+}
 
 --Skjermreferanser
 local screenW, screenH = display.contentWidth, display.contentHeight
@@ -42,8 +51,15 @@ local uiGroup
 
 local boksReferanse = {}
 
-function addBuildingBlock(x,y)
-  local newBlock = display.newImageRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
+function addBuildingBlock(x,y, color)
+  local newBlock
+  if(color == nil) then
+    newBlock = display.newImageRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
+  else
+    local newBlock = display.newRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
+    newBlock.fillColor = color
+  end
+
   newBlock.x = getColumnPosition(x)
   newBlock.y = getRowPosition(y)
   return newBlock
@@ -253,7 +269,12 @@ local function klikk(event)
 end
 
 
-
+local function getGradient()
+  local rng = math.random(1, 3)
+  if(rng == 1) then
+    return nil-- Blå
+  end
+end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -275,7 +296,9 @@ function scene:create( event )
   minGrense = 4
   ovreGrense = 8
 
-
+  local background = display.newImageRect(mainGroup,"background.png",screenW,screenH)
+  background.x = display.contentCenterX
+  background.y = display.contentCenterY
 
 
   local bakke = display.newRect(halfW ,screenH, screenW, 15)
