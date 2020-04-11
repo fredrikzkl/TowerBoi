@@ -14,13 +14,19 @@ local font = "Font/light_pixel-7.ttf"
 
 physics.setGravity( 0, 8 )
 
+
 local colors = {
-  green = {82, 190, 128},
-  blue = {52, 152, 219},
-  orange = {245, 176, 65},
-  red = {236, 112, 99},
-  yellow = {247, 220, 111}
-}
+    {39, 174, 96}, --Green(1)
+    {52, 152, 219}, --,
+    {245, 176, 65},
+    {236, 112, 99},
+    {247, 220, 111},
+    {224,229,229} --Steel (6)
+  }
+
+local function rgb(val)
+  return val/255
+end
 
 --Skjermreferanser
 local screenW, screenH = display.contentWidth, display.contentHeight
@@ -51,17 +57,19 @@ local uiGroup
 
 local boksReferanse = {}
 
-function addBuildingBlock(x,y, color)
+function addBuildingBlock(x,y, colorNr)
   local newBlock
-  if(color == nil) then
+  if(colorNr == nil) then
     newBlock = display.newImageRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
+    newBlock.x = getColumnPosition(x)
+    newBlock.y = getRowPosition(y)
   else
-    local newBlock = display.newRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
-    newBlock.fillColor = color
+    --local hoyreVegg = display.newRect(screenW+1,halfH, 1, screenH)
+    newBlock = display.newRect(getColumnPosition(x),getRowPosition(y),columnWidth, rowHeight)
+    mainGroup:insert(newBlock)
+    newBlock:setFillColor(colors[colorNr][1]/255, colors[colorNr][2]/255, colors[colorNr][3]/255)
   end
 
-  newBlock.x = getColumnPosition(x)
-  newBlock.y = getRowPosition(y)
   return newBlock
 end
 
@@ -296,13 +304,18 @@ function scene:create( event )
   minGrense = 4
   ovreGrense = 8
 
-  local background = display.newImageRect(mainGroup,"background.png",screenW,screenH)
-  background.x = display.contentCenterX
-  background.y = display.contentCenterY
+  local gradient = {
+    type="gradient",
+    color1={rgb(23),rgb(32),rgb(42)}, color2={rgb(86),rgb(101),rgb(115)}, direction="up"
+  }
 
+  local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
+  background:setFillColor(gradient)
+  mainGroup:insert(background)
 
-  local bakke = display.newRect(halfW ,screenH, screenW, 15)
+  local bakke = display.newRect(halfW ,screenH, screenW, 1)
   physics.addBody( bakke, 'static', veggValg )
+
   local veggVenstre = display.newRect(0,halfH,1, screenH)
   physics.addBody(veggVenstre, 'static', veggValg)
   local hoyreVegg = display.newRect(screenW+1,halfH,1, screenH)
@@ -311,9 +324,11 @@ function scene:create( event )
   mainGroup:insert(veggVenstre)
   mainGroup:insert(hoyreVegg)
 
+
+
   --Legger den nederste raden med blokker
   for i = minGrense, ovreGrense do
-    local temp = addBuildingBlock(i,numberOfRows)
+    local temp = addBuildingBlock(i,numberOfRows,6)
     physics.addBody(temp, "static" , { friction=0.5 })
   end
 
