@@ -7,22 +7,73 @@ local scene = composer.newScene()
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
-
+local sky = require('sky')
 local physics =  require('physics')
 physics.start()
-local font = "Font/light_pixel-7.ttf"
+local font = "Font/Pixellari.ttf"
 
 physics.setGravity( 0, 8 )
 
 
 local colors = {
-    {39, 174, 96}, --Green(1)
-    {52, 152, 219}, --,
-    {245, 176, 65},
-    {236, 112, 99},
-    {247, 220, 111},
-    {224,229,229} --Steel (6)
+    {224,229,229}, --Steel (1)
+    --RainBow
+    {230, 38, 31}, --Red(2),
+    {235, 117, 50}, --Orange(3),
+    {247, 208, 56}, --Yellow(4),
+    {163, 224, 72}, --Green(5),
+    {52, 187, 230},  --lyseblå(6),
+    {67, 85, 219},  --blå(7),
+    {210, 59, 231}  --blå(8),
+}
+
+local boxSheetMapper = {
+  frames =
+  {
+    {--Brun
+      x = 0,
+      y = 0,
+      width = 32,
+      height = 32
+    },
+    {--Blå
+      x = 0,
+      y = 32,
+      width = 32,
+      height = 32
+    },
+    {--Grønn
+      x = 0,
+      y = 32*2,
+      width = 32,
+      height = 32
+    },
+    {--Gul
+      x = 0,
+      y = 32*3,
+      width = 32,
+      height = 32
+    },
+    {--Rosa
+      x = 0,
+      y = 32*4,
+      width = 32,
+      height = 32
+    }
   }
+}
+
+local boxSheet = graphics.newImageSheet( "Sprites/boxes.png", boxSheetMapper )
+
+local colorIndexer = 2
+function getChosenColor()
+  local temp = colorIndexer
+  colorIndexer = colorIndexer + 1
+  if(colorIndexer+1 > 6)then
+    colorIndexer = 2
+  end
+  return temp
+end
 
 local function rgb(val)
   return val/255
@@ -58,18 +109,11 @@ local uiGroup
 local boksReferanse = {}
 
 function addBuildingBlock(x,y, colorNr)
-  local newBlock
-  if(colorNr == nil) then
-    newBlock = display.newImageRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
-    newBlock.x = getColumnPosition(x)
-    newBlock.y = getRowPosition(y)
-  else
-    --local hoyreVegg = display.newRect(screenW+1,halfH, 1, screenH)
-    newBlock = display.newRect(getColumnPosition(x),getRowPosition(y),columnWidth, rowHeight)
-    mainGroup:insert(newBlock)
-    newBlock:setFillColor(colors[colorNr][1]/255, colors[colorNr][2]/255, colors[colorNr][3]/255)
-  end
+  local newBlock = display.newImageRect(mainGroup, boxSheet,colorNr, columnWidth, rowHeight)
 
+  --local newBlock = display.newImageRect(mainGroup, "Sprites/box.png", columnWidth, rowHeight)
+  newBlock.x = getColumnPosition(x)
+  newBlock.y = getRowPosition(y)
   return newBlock
 end
 
@@ -104,18 +148,20 @@ local maksBrikkeHastighet = 20
 local debrisTable = {}
 local statiskeBlokkerTable = {}
 
+local currentColor = getChosenColor()
 
-
-
+--Lyder og myikk
+local proceedLyd
+local byggLyd
+local maximumSpeedAnnouncer
+local heyPrettyGoodLyd
+local wow2Lyd
 
 --Legger inn bakken, slik at brikken faller på bakken
 
 local veggValg = {
 	friction = 0.1,
 }
-
-
-
 
 
 local function flyttBrikker()
@@ -142,11 +188,12 @@ local function flyttBrikker()
     end
 
     for i = 1, #aktuelleKolonner do
-      table.insert(boksReferanse, addBuildingBlock(aktuelleKolonner[i], aktuellRad))
+      table.insert(boksReferanse, addBuildingBlock(aktuelleKolonner[i], aktuellRad, currentColor))
     end
 end
 
 local function restart()
+  audio.play( proceedLyd  )
   composer.gotoScene( 'lobby' )
   --local thisScene = composer.getSceneName( 'current' )
   --composer.gotoScene( thisScene )
@@ -182,17 +229,37 @@ end
 local function gameLoop()
 
   if(#aktuelleKolonner == 0) then --Dersom listen er tom, har man tapt
+    local result = (numberOfRows - aktuellRad) - 1
+    --Lydeffekt
+      if(result > 12 and result < 15) then
+        audio.play(heyPrettyGoodLyd)
+      end
+    --
     aktuelleKolonner = {}
 		Runtime:removeEventListener( "touch", klikk )
 		timer.cancel(gameLoopTimer)
-		local result = (numberOfRows - aktuellRad) - 1
+
 		print("Ferdig! Du bygget et hus på " .. result )
-		local ggbro = display.newText("GG, bro", halfW, halfH*0.5, font, 50)
+
+		local ggbro = display.newEmbossedText("GG, bro", halfW, halfH*0.5, font, 50)
+    local adas =
+    {
+        highlight = { r=1, g=1, b=1 },
+        shadow = { r=0.3, g=0.3, b=0.3 }
+    }
+
+    ggbro:setEmbossColor( adas )
 		uiGroup:insert(ggbro)
 		local points = display.newText("Poeng: " .. result, halfW, halfH*0.65, font, 30)
 		uiGroup:insert(points)
-		local playAgain = display.newText("Spill igjen!", halfW, screenH-100, font, 50)
-		playAgain:addEventListener( "tap", restart )
+
+    local buttonFrame = display.newImageRect( "Sprites/knapp.png", 260, 85 )
+    buttonFrame.x = halfW
+    buttonFrame.y = screenH-100
+    uiGroup:insert(buttonFrame)
+		local playAgain = display.newText("Spill igjen", halfW, screenH-100, font, 50)
+    playAgain:setFillColor(1,1,1)
+		buttonFrame:addEventListener( "tap", restart )
 		uiGroup:insert(playAgain)
 		--display.newText("GG, bro", halfW, halfH, font, 40)
 
@@ -210,7 +277,7 @@ end
 
 --physics.setDrawMode( 'hybrid' )
 local function lagRester(colPos) --Lager blokker som er påvirket av fysikken, men har ingen funksjonalitet
-	local tempDeb = addBuildingBlock(colPos, aktuellRad)
+	local tempDeb = addBuildingBlock(colPos, aktuellRad, currentColor)
 	table.insert(debrisTable, tempDeb)
 	physics.addBody( tempDeb , 'dynamic', {bounce = 0.4} )
 	local torque = 0
@@ -224,29 +291,34 @@ local function lagRester(colPos) --Lager blokker som er påvirket av fysikken, m
 	tempDeb:applyTorque(torque)
 end
 
-
+local five_streak = 0
 local function klikk(event)
-
-
-
 	if event.phase == 'began' and (#aktuelleKolonner > 0)  then
-
+    audio.play( byggLyd  )
 
 	  local nyAktuelleKolonner = {}
 	  --Må sjekke hvilke som henger ut
-
+    local teller = 0
 	  for i=1, #aktuelleKolonner do
-      print(aktuelleKolonner[i])
 	    if(aktuelleKolonner[i] >= minGrense and aktuelleKolonner[i] <= ovreGrense) then
 	      table.insert(nyAktuelleKolonner, aktuelleKolonner[i])
+        teller = teller + 1
 			else
 				lagRester(aktuelleKolonner[i])
 	    end
 	  end
 
+    if(teller == 5)then
+      five_streak = five_streak + 1
+      if(five_streak == 3) then
+        audio.play(wow2Lyd)
+      end
+    end
+
+
 	  --NyeAktuelleKolonner skal inneholde de verdiene som erinnenfor
 	  for i=1, #nyAktuelleKolonner do
-	    local temp = addBuildingBlock(nyAktuelleKolonner[i],aktuellRad)
+	    local temp = addBuildingBlock(nyAktuelleKolonner[i],aktuellRad, currentColor)
 			physics.addBody( temp, "static", { friction=0.5 } )
 			table.insert( statiskeBlokkerTable, temp )
 	  end
@@ -261,28 +333,28 @@ local function klikk(event)
 	  end
 
 	  aktuellRad = aktuellRad - 1
-
+    currentColor = getChosenColor()
 
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
 			brikkeHastighet = brikkeHastighet - hastighetsFaktor
 		else
+      audio.play(maximumSpeedAnnouncer)
+      maximumSpeedAnnouncer = nil
 			print("MAKS HASTIGHET LEL")
 		end
 		timer.cancel(gameLoopTimer)
 		gameLoopTimer = nil
 		gameLoopTimer = timer.performWithDelay(brikkeHastighet, gameLoop, 0)
-		print("Rad: " .. aktuellRad .. " Brikkehastighet: " .. brikkeHastighet)
+		--print("Rad: " .. aktuellRad .. " Brikkehastighet: " .. brikkeHastighet)
 	end
 end
 
+local function spawnSkies()
 
-local function getGradient()
-  local rng = math.random(1, 3)
-  if(rng == 1) then
-    return nil-- Blå
-  end
 end
+
+
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -304,9 +376,11 @@ function scene:create( event )
   minGrense = 4
   ovreGrense = 8
 
+
+
   local gradient = {
     type="gradient",
-    color1={rgb(23),rgb(32),rgb(42)}, color2={rgb(86),rgb(101),rgb(115)}, direction="up"
+    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
   }
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
@@ -328,12 +402,19 @@ function scene:create( event )
 
   --Legger den nederste raden med blokker
   for i = minGrense, ovreGrense do
-    local temp = addBuildingBlock(i,numberOfRows,6)
+    local temp = addBuildingBlock(i,numberOfRows,1) --Stålfarge = 1
     physics.addBody(temp, "static" , { friction=0.5 })
   end
 
   gameLoopTimer = nil
   gameLoopTimer = timer.performWithDelay(brikkeHastighet, gameLoop, 0)
+
+  byggLyd = audio.loadSound("Sound/build.wav")
+  wow2Lyd = audio.loadSound("Sound/Announcer/wow-2.wav")
+  heyPrettyGoodLyd = audio.loadSound("Sound/Announcer/hey-thats-pretty-good.wav")
+  maximumSpeedAnnouncer = audio.loadSound('Sound/Announcer/maximum-speed-2.wav')
+  proceedLyd = audio.loadSound("Sound/proceed.wav")
+
 end
 
 
@@ -345,7 +426,14 @@ function scene:show( event )
 
 	if ( phase == "will" ) then
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
-    --Resetter alle spillvariabler
+
+    local letsGo = math.random(1,2)
+    if(letsGo == 1) then
+      audio.play(audio.loadSound("Sound/Announcer/lets-go-3.wav"))
+    elseif (letsGo == 2 ) then
+      audio.play(audio.loadSound("Sound/Announcer/lets-go-2.wav"))
+    end
+
 
 
 	elseif ( phase == "did" ) then
