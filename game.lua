@@ -10,10 +10,11 @@ local scene = composer.newScene()
 local sky = require('sky')
 local physics =  require('physics')
 physics.start()
-local font = "Font/Pixellari.ttf"
 local tidsur
 physics.setGravity( 0, 8 )
 
+local buttonGraphics = require('Graphics.Buttons')
+local boxSheet = require('Graphics.Boxes')
 
 local colors = {
     {224,229,229}, --Steel (1)
@@ -27,43 +28,6 @@ local colors = {
     {210, 59, 231}  --blå(8),
 }
 
-local boxSheetMapper = {
-  frames =
-  {
-    {--Brun
-      x = 0,
-      y = 0,
-      width = 32,
-      height = 32
-    },
-    {--Blå
-      x = 0,
-      y = 32,
-      width = 32,
-      height = 32
-    },
-    {--Grønn
-      x = 0,
-      y = 32*2,
-      width = 32,
-      height = 32
-    },
-    {--Gul
-      x = 0,
-      y = 32*3,
-      width = 32,
-      height = 32
-    },
-    {--Rosa
-      x = 0,
-      y = 32*4,
-      width = 32,
-      height = 32
-    }
-  }
-}
-
-local boxSheet = graphics.newImageSheet( "Sprites/boxes.png", boxSheetMapper )
 
 local colorIndexer = 2
 function getChosenColor()
@@ -79,9 +43,7 @@ local function rgb(val)
   return val/255
 end
 
---Skjermreferanser
-local screenW, screenH = display.contentWidth, display.contentHeight
-local halfW, halfH =  screenW*0.5, screenH*0.5
+
 local gridHeight = 0.99
 --Grid verdier
 numberOfColumns = 11
@@ -153,12 +115,16 @@ local currentColor = getChosenColor()
 --Lyder og myikk
 local proceedLyd
 local byggLyd
+local failLyd
+local bigFailLyd
+local deadLyd
 
 local crowd2Lyd
 local partyHornLyd
 
 
 local maximumSpeedAnnouncer
+local myMomWouldDoBetter
 local maxSpeedLyd
 local doYouEvenTry
 local ggLyd
@@ -170,8 +136,18 @@ local ohYeahNowWereTalkin
 local youSuckLyd
 local iMeanItsOkIGuessLyd
 local ringadingdingdonMotherfuckerLyd
+local nice1Lyd
+local nice2Lyd
 
 --Legger inn bakken, slik at brikken faller på bakken
+
+--Starts verdier
+aktuelleKolonner = {-4,-3,-2,-1,0}
+brikkeHastighet = OGBrikkeHastighet
+boksReferanse = {}
+debrisTable = {}
+retning = "hoyre"
+aktuellRad = numberOfRows-1
 
 local veggValg = {
 	friction = 0.1,
@@ -240,10 +216,10 @@ end
 
 local function generatePlayAgainButton()
 
-  local buttonFrame = display.newImageRect( "Sprites/knapp.png", 260, 85 )
+  local buttonFrame = display.newImageRect(uiGroup, buttonGraphics,1, 260, 85 )
   buttonFrame.x = halfW
   buttonFrame.y = screenH-100
-  uiGroup:insert(buttonFrame)
+
   local playAgain = display.newText("Spill igjen", halfW, screenH-100, font, 50)
   playAgain:setFillColor(1,1,1)
   uiGroup:insert(playAgain)
@@ -260,6 +236,7 @@ end
 
 local winning = false
 local function gameLoop()
+  if(#aktuelleKolonner ~= nil)then
 
   if(#aktuelleKolonner == 0) then --Dersom listen er tom, har man tapt
     local result = (numberOfRows - aktuellRad) - 1
@@ -267,17 +244,24 @@ local function gameLoop()
       result = 20
     end
     --Lydeffekt
-      if(result < 3) then
-        audio.play( youSuckLyd )
-      elseif(result >= 3 and result < 5) then
-        audio.play( omgThatsEmbaressingLyd )
+      if(result < 6) then
+        local rng = math.random(1,3)
+        if(rng == 1) then
+          audio.play( omgThatsEmbaressingLyd )
+        elseif(rng == 2)then
+          audio.play(myMomWouldDoBetter)
+        else
+          audio.play( youSuckLyd )
+        end
       elseif(result >= 5 and result < 8) then
         audio.play(iMeanItsOkIGuessLyd)
-      elseif(result >= 8 and result < 10) then
+      elseif(result >= 8 and result < 12) then
         audio.play(ggLyd)
-      elseif(result >= 10 and result < 13) then
+      elseif(result >= 12 and result < 15) then
         audio.play(ohYeahNowWereTalkin)
-      elseif(result >= 13 and result < 15) then
+      elseif(result >= 15 and result < 18) then
+        audio.play(heyPrettyGoodLyd)
+      elseif(result >= 18 and result < 20) then
         audio.play(heyPrettyGoodLyd)
       end
     --
@@ -297,8 +281,9 @@ local function gameLoop()
 		--display.newText("GG, bro", halfW, halfH, font, 40)
     timer.performWithDelay(1000, generatePlayAgainButton)
   end
-
+  end
   flyttBrikker()
+
 end
 
 
@@ -312,7 +297,7 @@ local function ringaDing()
   audio.play(ringadingdingdonMotherfuckerLyd)
   generatePlayAgainButton()
 
-  local winText = display.newEmbossedText("You crazy son of a bitch,\n          you did it!", halfW, halfH*0.5+90, font, 50)
+  local winText = display.newEmbossedText("You crazy son of a bitch,\n           you did it!", halfW, halfH*0.5+90, font, 50)
   uiGroup:insert(winText)
   winText.alpha = 0
   transition.fadeIn( winText, { time=2000 } )
@@ -360,13 +345,16 @@ local function lagRester(colPos) --Lager blokker som er påvirket av fysikken, m
 	tempDeb:applyTorque(torque)
 end
 
-local five_streak = 0
+local streak = 5
+local streakCounter = 0
+
 local function klikk(event)
 	if event.phase == 'began' and (#aktuelleKolonner > 0)  then
-    audio.play( byggLyd  )
+
 
 	  local nyAktuelleKolonner = {}
 	  --Må sjekke hvilke som henger ut
+
     local teller = 0
 	  for i=1, #aktuelleKolonner do
 	    if(aktuelleKolonner[i] >= minGrense and aktuelleKolonner[i] <= ovreGrense) then
@@ -377,10 +365,31 @@ local function klikk(event)
 	    end
 	  end
 
-    if(teller == 5)then
-      five_streak = five_streak + 1
-      if(five_streak == 3) then
+
+    if(teller == 0) then
+      audio.play(deadLyd)
+    elseif(#aktuelleKolonner-#nyAktuelleKolonner >= 3) then
+      audio.play(bigFailLyd)
+    elseif(teller < #aktuelleKolonner) then
+      audio.play(failLyd)
+    else
+      audio.play(byggLyd)
+    end
+    if(teller == streak)then
+      streakCounter = streakCounter + 1
+    else
+      streakCounter = 0
+      streak = teller
+    end
+
+    if(streakCounter%3 == 0 and streakCounter > 0) then
+      local rng = math.random(1,3)
+      if(rng == 1)then
         audio.play(wow2Lyd)
+      elseif(rng == 2)then
+        audio.play(nice1Lyd)
+      elseif(rng == 3)then
+        audio.play(nice2Lyd)
       end
     end
 
@@ -407,8 +416,8 @@ local function klikk(event)
 
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
-			--brikkeHastighet = brikkeHastighet - hastighetsFaktor
-      brikkeHastighet = brikkeHastighet - 0
+			brikkeHastighet = brikkeHastighet - hastighetsFaktor
+      --brikkeHastighet = brikkeHastighet - 0
 		else
       if(#nyAktuelleKolonner > 0) then
         audio.play(maxSpeedLyd)
@@ -459,14 +468,6 @@ function scene:create( event )
 
   tidsur = system.getTimer()
 
-  local gradient = {
-    type="gradient",
-    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
-  }
-
-  local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-  background:setFillColor(gradient)
-  mainGroup:insert(background)
 
   local bakke = display.newRect(halfW ,screenH, screenW, 1)
   physics.addBody( bakke, 'static', veggValg )
@@ -479,7 +480,14 @@ function scene:create( event )
   mainGroup:insert(veggVenstre)
   mainGroup:insert(hoyreVegg)
 
+  local OGSkyGradient = {
+    type="gradient",
+    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
+  }
 
+  local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
+  background:setFillColor(OGSkyGradient)
+  mainGroup:insert(background)
 
   --Legger den nederste raden med blokker
   for i = minGrense, ovreGrense do
@@ -493,9 +501,13 @@ function scene:create( event )
   byggLyd = audio.loadSound("Sound/build.wav")
   maxSpeedLyd = audio.loadSound( "Sound/maxSpeed.wav")
   proceedLyd = audio.loadSound("Sound/proceed.wav")
+  failLyd = audio.loadSound("Sound/fail.wav")
+  bigFailLyd = audio.loadSound("Sound/big_fail.wav")
+  deadLyd = audio.loadSound("Sound/dead_2.wav")
   crowd2Lyd =  audio.loadSound("Sound/Crowd_2.mp3")
   party_horn =  audio.loadSound("Sound/party_horn.mp3")
 
+  myMomWouldDoBetter = audio.loadSound("Sound/Announcer/myMom.wav")
   wow2Lyd = audio.loadSound("Sound/Announcer/wow-2.wav")
   heyPrettyGoodLyd = audio.loadSound("Sound/Announcer/hey-thats-pretty-good.wav")
   maximumSpeedAnnouncer = audio.loadSound('Sound/Announcer/maximum-speed-2.wav')
@@ -503,6 +515,8 @@ function scene:create( event )
   ohYeahNowWereTalkin = audio.loadSound("Sound/Announcer/ah-yeah-now-were-talkin.wav")
   youSuckLyd = audio.loadSound( "Sound/Announcer/you-suck.wav"  )
   iMeanItsOkIGuessLyd = audio.loadSound( "Sound/Announcer/i-mean-its-ok-i-guess.wav"  )
+  nice1Lyd = audio.loadSound( "Sound/Announcer/nice-1.wav")
+  nice2Lyd = audio.loadSound( "Sound/Announcer/nice-2.wav")
 
   ggLyd = audio.loadSound("Sound/Announcer/gg.wav")
   manYouCrazyLyd = audio.loadSound("Sound/Announcer/man-you-crazy.wav")
@@ -531,12 +545,6 @@ function scene:show( event )
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 
-    aktuelleKolonner = {-4,-3,-2,-1,0}
-    brikkeHastighet = OGBrikkeHastighet
-    boksReferanse = {}
-    debrisTable = {}
-    retning = "hoyre"
-    aktuellRad = numberOfRows-1
 
     physics.start()
     Runtime:addEventListener( "touch", klikk )
