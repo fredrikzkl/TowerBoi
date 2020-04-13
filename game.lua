@@ -11,7 +11,7 @@ local sky = require('sky')
 local physics =  require('physics')
 physics.start()
 local font = "Font/Pixellari.ttf"
-
+local tidsur
 physics.setGravity( 0, 8 )
 
 
@@ -239,7 +239,7 @@ function clearScene()
 end
 
 local function generatePlayAgainButton()
-  local components = {}
+
   local buttonFrame = display.newImageRect( "Sprites/knapp.png", 260, 85 )
   buttonFrame.x = halfW
   buttonFrame.y = screenH-100
@@ -248,9 +248,12 @@ local function generatePlayAgainButton()
   playAgain:setFillColor(1,1,1)
   uiGroup:insert(playAgain)
   buttonFrame:addEventListener( "tap", restart )
-  table.insert(components, buttonFrame)
-  table.insert(components, playAgain)
-  return components
+  buttonFrame.alpha = 0
+  playAgain.alpha = 0
+  transition.fadeIn( buttonFrame, { time=2000 } )
+  transition.fadeIn( playAgain, { time=2000 } )
+
+
 end
 
 
@@ -284,16 +287,10 @@ local function gameLoop()
 
 		print("Ferdig! Du bygget et hus på " .. result )
 
-		local ggbro = display.newEmbossedText("GG, bro", halfW, halfH*0.5+45, font, 50)
-    local adas =
-    {
-        highlight = { r=1, g=1, b=1 },
-        shadow = { r=0.3, g=0.3, b=0.3 }
-    }
+		local ggbro = display.newText("GG, bro", halfW, halfH*0.5+45, font, 50)
 
-    ggbro:setEmbossColor( adas )
 		uiGroup:insert(ggbro)
-		local points = display.newText("Poeng: " .. result, halfW, halfH*0.65+45, font, 30)
+		local points = display.newText("Høyde: " .. result, halfW, halfH*0.65+45, font, 30)
 		uiGroup:insert(points)
 
 
@@ -313,15 +310,27 @@ end
 -----------------------------------------------------------------------------------------
 local function ringaDing()
   audio.play(ringadingdingdonMotherfuckerLyd)
-  local playAgainButton = generatePlayAgainButton()
-  playAgainButton[1].alpha = 0
-  playAgainButton[2].alpha = 0
-  local winText = display.newEmbossedText("You son of a bitch,\n      you did it!", halfW, halfH*0.5+85, font, 50)
+  generatePlayAgainButton()
+
+  local winText = display.newEmbossedText("You crazy son of a bitch,\n          you did it!", halfW, halfH*0.5+90, font, 50)
   uiGroup:insert(winText)
   winText.alpha = 0
   transition.fadeIn( winText, { time=2000 } )
-  transition.fadeIn( playAgainButton[1], { time=2000 } )
-  transition.fadeIn( playAgainButton[2], { time=2000 } )
+
+  --Timer
+  local totalTid = system.getTimer() - tidsur
+
+  local floor = math.floor
+  local ms = floor(totalTid % 1000)
+  local hundredths = floor(ms / 10)
+  local seconds = floor(totalTid / 1000)
+  local minutes = floor(seconds / 60);   seconds = floor(seconds % 60)
+  local formattedTime = string.format("%02d:%02d:%02d", minutes, seconds, hundredths)
+
+  local tidsText = display.newText("Tid: " .. formattedTime, halfW, halfH*0.5+280, font, 30)
+  uiGroup:insert(tidsText)
+  tidsText.alpha = 0
+  transition.fadeIn( tidsText, { time=2500 } )
 end
 
 local function winning()
@@ -448,7 +457,7 @@ function scene:create( event )
   minGrense = 4
   ovreGrense = 8
 
-
+  tidsur = system.getTimer()
 
   local gradient = {
     type="gradient",
