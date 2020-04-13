@@ -153,9 +153,23 @@ local currentColor = getChosenColor()
 --Lyder og myikk
 local proceedLyd
 local byggLyd
+
+local crowd2Lyd
+local partyHornLyd
+
+
 local maximumSpeedAnnouncer
+local maxSpeedLyd
+local doYouEvenTry
+local ggLyd
+local manYouCrazyLyd
 local heyPrettyGoodLyd
+local omgThatsEmbaressingLyd
 local wow2Lyd
+local ohYeahNowWereTalkin
+local youSuckLyd
+local iMeanItsOkIGuessLyd
+local ringadingdingdonMotherfuckerLyd
 
 --Legger inn bakken, slik at brikken faller på bakken
 
@@ -224,14 +238,43 @@ function clearScene()
   end
 end
 
+local function generatePlayAgainButton()
+  local components = {}
+  local buttonFrame = display.newImageRect( "Sprites/knapp.png", 260, 85 )
+  buttonFrame.x = halfW
+  buttonFrame.y = screenH-100
+  uiGroup:insert(buttonFrame)
+  local playAgain = display.newText("Spill igjen", halfW, screenH-100, font, 50)
+  playAgain:setFillColor(1,1,1)
+  uiGroup:insert(playAgain)
+  buttonFrame:addEventListener( "tap", restart )
+  table.insert(components, buttonFrame)
+  table.insert(components, playAgain)
+  return components
+end
 
 
+
+local winning = false
 local function gameLoop()
 
   if(#aktuelleKolonner == 0) then --Dersom listen er tom, har man tapt
     local result = (numberOfRows - aktuellRad) - 1
+    if(winning) then
+      result = 20
+    end
     --Lydeffekt
-      if(result > 12 and result < 15) then
+      if(result < 3) then
+        audio.play( youSuckLyd )
+      elseif(result >= 3 and result < 5) then
+        audio.play( omgThatsEmbaressingLyd )
+      elseif(result >= 5 and result < 8) then
+        audio.play(iMeanItsOkIGuessLyd)
+      elseif(result >= 8 and result < 10) then
+        audio.play(ggLyd)
+      elseif(result >= 10 and result < 13) then
+        audio.play(ohYeahNowWereTalkin)
+      elseif(result >= 13 and result < 15) then
         audio.play(heyPrettyGoodLyd)
       end
     --
@@ -241,7 +284,7 @@ local function gameLoop()
 
 		print("Ferdig! Du bygget et hus på " .. result )
 
-		local ggbro = display.newEmbossedText("GG, bro", halfW, halfH*0.5, font, 50)
+		local ggbro = display.newEmbossedText("GG, bro", halfW, halfH*0.5+45, font, 50)
     local adas =
     {
         highlight = { r=1, g=1, b=1 },
@@ -250,30 +293,47 @@ local function gameLoop()
 
     ggbro:setEmbossColor( adas )
 		uiGroup:insert(ggbro)
-		local points = display.newText("Poeng: " .. result, halfW, halfH*0.65, font, 30)
+		local points = display.newText("Poeng: " .. result, halfW, halfH*0.65+45, font, 30)
 		uiGroup:insert(points)
 
-    local buttonFrame = display.newImageRect( "Sprites/knapp.png", 260, 85 )
-    buttonFrame.x = halfW
-    buttonFrame.y = screenH-100
-    uiGroup:insert(buttonFrame)
-		local playAgain = display.newText("Spill igjen", halfW, screenH-100, font, 50)
-    playAgain:setFillColor(1,1,1)
-		buttonFrame:addEventListener( "tap", restart )
-		uiGroup:insert(playAgain)
-		--display.newText("GG, bro", halfW, halfH, font, 40)
 
+		--display.newText("GG, bro", halfW, halfH, font, 40)
+    timer.performWithDelay(1000, generatePlayAgainButton)
   end
 
   flyttBrikker()
-
 end
+
+
 
 -----------------------------------------------------------------------------------------
 --
 -- Input
 --
 -----------------------------------------------------------------------------------------
+local function ringaDing()
+  audio.play(ringadingdingdonMotherfuckerLyd)
+  local playAgainButton = generatePlayAgainButton()
+  playAgainButton[1].alpha = 0
+  playAgainButton[2].alpha = 0
+  local winText = display.newEmbossedText("You son of a bitch,\n      you did it!", halfW, halfH*0.5+85, font, 50)
+  uiGroup:insert(winText)
+  winText.alpha = 0
+  transition.fadeIn( winText, { time=2000 } )
+  transition.fadeIn( playAgainButton[1], { time=2000 } )
+  transition.fadeIn( playAgainButton[2], { time=2000 } )
+end
+
+local function winning()
+  winning = true
+  audio.play(crowd2Lyd)
+  audio.play(party_horn)
+  timer.performWithDelay( 2000, ringaDing )
+
+
+end
+
+
 
 --physics.setDrawMode( 'hybrid' )
 local function lagRester(colPos) --Lager blokker som er påvirket av fysikken, men har ingen funksjonalitet
@@ -335,16 +395,28 @@ local function klikk(event)
 	  aktuellRad = aktuellRad - 1
     currentColor = getChosenColor()
 
+
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
-			brikkeHastighet = brikkeHastighet - hastighetsFaktor
+			--brikkeHastighet = brikkeHastighet - hastighetsFaktor
+      brikkeHastighet = brikkeHastighet - 0
 		else
-      audio.play(maximumSpeedAnnouncer)
-      maximumSpeedAnnouncer = nil
-			print("MAKS HASTIGHET LEL")
+      if(#nyAktuelleKolonner > 0) then
+        audio.play(maxSpeedLyd)
+        maxSpeedLyd = nil
+      end
 		end
 		timer.cancel(gameLoopTimer)
 		gameLoopTimer = nil
+
+    --Sjekke winCondition
+    if(aktuellRad == 0 and #nyAktuelleKolonner > 0)then
+      --Winning!
+      winning()
+      aktuelleKolonner = {}
+      return
+    end
+
 		gameLoopTimer = timer.performWithDelay(brikkeHastighet, gameLoop, 0)
 		--print("Rad: " .. aktuellRad .. " Brikkehastighet: " .. brikkeHastighet)
 	end
@@ -410,11 +482,22 @@ function scene:create( event )
   gameLoopTimer = timer.performWithDelay(brikkeHastighet, gameLoop, 0)
 
   byggLyd = audio.loadSound("Sound/build.wav")
+  maxSpeedLyd = audio.loadSound( "Sound/maxSpeed.wav")
+  proceedLyd = audio.loadSound("Sound/proceed.wav")
+  crowd2Lyd =  audio.loadSound("Sound/Crowd_2.mp3")
+  party_horn =  audio.loadSound("Sound/party_horn.mp3")
+
   wow2Lyd = audio.loadSound("Sound/Announcer/wow-2.wav")
   heyPrettyGoodLyd = audio.loadSound("Sound/Announcer/hey-thats-pretty-good.wav")
   maximumSpeedAnnouncer = audio.loadSound('Sound/Announcer/maximum-speed-2.wav')
-  proceedLyd = audio.loadSound("Sound/proceed.wav")
+  omgThatsEmbaressingLyd = audio.loadSound( "Sound/Announcer/omg-thats-embaressing.wav" )
+  ohYeahNowWereTalkin = audio.loadSound("Sound/Announcer/ah-yeah-now-were-talkin.wav")
+  youSuckLyd = audio.loadSound( "Sound/Announcer/you-suck.wav"  )
+  iMeanItsOkIGuessLyd = audio.loadSound( "Sound/Announcer/i-mean-its-ok-i-guess.wav"  )
 
+  ggLyd = audio.loadSound("Sound/Announcer/gg.wav")
+  manYouCrazyLyd = audio.loadSound("Sound/Announcer/man-you-crazy.wav")
+  ringadingdingdonMotherfuckerLyd = audio.loadSound("Sound/Announcer/ringadingdingdong-motherfucker.wav")
 end
 
 
@@ -429,9 +512,9 @@ function scene:show( event )
 
     local letsGo = math.random(1,2)
     if(letsGo == 1) then
-      audio.play(audio.loadSound("Sound/Announcer/lets-go-3.wav"))
+      --audio.play(audio.loadSound("Sound/Announcer/lets-go-3.wav"))
     elseif (letsGo == 2 ) then
-      audio.play(audio.loadSound("Sound/Announcer/lets-go-2.wav"))
+      --audio.play(audio.loadSound("Sound/Announcer/lets-go-2.wav"))
     end
 
 
