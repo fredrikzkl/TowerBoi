@@ -178,7 +178,10 @@ local function flyttBrikker()
     end
 
     for i = 1, #aktuelleKolonner do
-      table.insert(boksReferanse, addBuildingBlock(aktuelleKolonner[i], aktuellRad, currentColor))
+      if(aktuelleKolonner[i] > -1) then
+        table.insert(boksReferanse, addBuildingBlock(aktuelleKolonner[i], aktuellRad, currentColor))
+
+      end
     end
 end
 
@@ -187,6 +190,11 @@ local function restart()
   composer.gotoScene( 'lobby' )
   --local thisScene = composer.getSceneName( 'current' )
   --composer.gotoScene( thisScene )
+end
+
+function gotoMenu()
+  audio.play( proceedLyd  )
+  composer.gotoScene( 'menu' , {effect="slideRight"})
 end
 
 
@@ -215,12 +223,11 @@ function clearScene()
 end
 
 local function generatePlayAgainButton()
-
   local buttonFrame = display.newImageRect(uiGroup, buttonGraphics,1, 260, 85 )
   buttonFrame.x = halfW
-  buttonFrame.y = screenH-100
+  buttonFrame.y = screenH-150
 
-  local playAgain = display.newText("Spill igjen", halfW, screenH-100, font, 50)
+  local playAgain = display.newText("Spill igjen", buttonFrame.x, buttonFrame.y, font, 50)
   playAgain:setFillColor(1,1,1)
   uiGroup:insert(playAgain)
   buttonFrame:addEventListener( "tap", restart )
@@ -229,6 +236,19 @@ local function generatePlayAgainButton()
   transition.fadeIn( buttonFrame, { time=2000 } )
   transition.fadeIn( playAgain, { time=2000 } )
 
+  local backButtonFrame = display.newImageRect(uiGroup, buttonGraphics,3, 260, 85 )
+  backButtonFrame.x = halfW
+  backButtonFrame.y = playAgain.y-150
+  local backButtonText = display.newText("Tilbake", backButtonFrame.x, backButtonFrame.y, font, 50)
+
+  uiGroup:insert(backButtonFrame)
+  uiGroup:insert(backButtonText)
+  backButtonFrame:addEventListener( "tap", gotoMenu )
+  backButtonFrame.alpha = 0
+  backButtonText.alpha = 0
+
+  transition.fadeIn( backButtonFrame, { time=2000 } )
+  transition.fadeIn( backButtonText, { time=2000 } )
 
 end
 
@@ -417,7 +437,7 @@ local function klikk(event)
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
 			brikkeHastighet = brikkeHastighet - hastighetsFaktor
-      --brikkeHastighet = brikkeHastighet - 0
+      --brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
 		else
       if(#nyAktuelleKolonner > 0) then
         audio.play(maxSpeedLyd)
@@ -473,8 +493,11 @@ function scene:create( event )
   physics.addBody( bakke, 'static', veggValg )
 
   local veggVenstre = display.newRect(0,halfH,1, screenH)
+  veggVenstre:setFillColor(0,0,0,0)
   physics.addBody(veggVenstre, 'static', veggValg)
   local hoyreVegg = display.newRect(screenW+1,halfH,1, screenH)
+  hoyreVegg:setFillColor(0,0,0,0)
+
   physics.addBody(hoyreVegg, 'static', veggValg)
   mainGroup:insert(bakke)
   mainGroup:insert(veggVenstre)

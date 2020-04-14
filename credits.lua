@@ -24,19 +24,11 @@ local proceedLyd
 local disabledLyd
 local startGameLyd
 
-local function gotoGame()
-  audio.play( startGameLyd )
-  composer.gotoScene( 'game' , {effect="slideLeft"})
+local function gotoMenu()
+  audio.play( proceedLyd )
+  composer.gotoScene( 'menu' , {effect="slideDown"})
 end
 
-local function gotoCredits()
-  audio.play(proceed)
-  composer.gotoScene('credits', {effect="slideUp"})
-end
-
-local function enableSecret()
-  audio.play(disabledLyd)
-end
 
 
 function createButton(y, color, text)
@@ -76,27 +68,39 @@ function scene:create( event )
   menuUiGroup = display.newGroup()
   sceneGroup:insert(menuUiGroup)
 
-  OGSkyGradient = {
+  SkyGradient = {
     type="gradient",
-    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
+    color1={rgb(52),rgb(237),rgb(212)}, color2={rgb(247),rgb(124),rgb(245)}, direction="down"
   }
 
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-  background:setFillColor(OGSkyGradient)
+  background:setFillColor(SkyGradient)
   backgroundGroup:insert(background)
 
-  local header = display.newEmbossedText("TowerBoi", halfW, 100, font, 100)
+  local header = display.newEmbossedText("Credits", halfW, 100, font, 80)
   menuUiGroup:insert(header)
 
-  local playButton = createButton(halfH, 1, "Start")
-  local statsButton = createButton(playButton.y+playButton.height + 50, 4, "Stats")
-  local creditsButton = createButton(statsButton.y+statsButton.height + 50, 3, "Credits")
-  local secretsButton = createButton(creditsButton.y+creditsButton.height + 50, 5, "Secret")
 
-  playButton:addEventListener("tap", gotoGame)
-  creditsButton:addEventListener("tap", gotoCredits)
-  secretsButton:addEventListener("tap", enableSecret)
+
+  local fredrikText = display.newEmbossedText("Utviklet av Fredrik Kloster", header.x, header.y + 250, font, 40,"center")
+  menuUiGroup:insert(fredrikText)
+
+  local dateText = display.newEmbossedText("April, 2020", fredrikText.x, fredrikText.y + 50, font, 40,"center")
+  menuUiGroup:insert(dateText)
+
+
+  local topherText = display.newEmbossedText("Stemmer av John Christopher Kruiderink", dateText.x, dateText.y + 100, font, 30)
+  menuUiGroup:insert(topherText)
+
+  local grottingText = display.newEmbossedText("Originalmusikk av Martin Sveen Grøtting", topherText.x, topherText.y + 50, font, 30,"left")
+  menuUiGroup:insert(grottingText)
+
+
+  local backButton = createButton(screenH-180, 2, "Tilbake")
+
+
+  backButton:addEventListener("tap", gotoMenu)
 
   proceedLyd = audio.loadSound("Sound/proceed.wav")
   startGameLyd = audio.loadSound("Sound/start_game.wav")
