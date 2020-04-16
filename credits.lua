@@ -26,12 +26,12 @@ local startGameLyd
 
 local function gotoMenu()
   audio.play( proceedLyd )
-  composer.gotoScene( 'menu' , {effect="slideDown"})
+  composer.gotoScene( 'menu' , {time=transitionTime,effect="slideDown"})
 end
 
 
 
-function createButton(y, color, text)
+local function createButton(y, color, text)
   local margin = 40
   local options = {
     text = text,
@@ -98,8 +98,6 @@ function scene:create( event )
 
 
   local backButton = createButton(screenH-180, 2, "Tilbake")
-
-
   backButton:addEventListener("tap", gotoMenu)
 
   proceedLyd = audio.loadSound("Sound/proceed.wav")

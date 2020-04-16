@@ -13,6 +13,9 @@ physics.start()
 local tidsur
 physics.setGravity( 0, 8 )
 
+local save = require('Data.HighScoreHandler')
+local time = require('Utils.TimeManagement')
+
 local buttonGraphics = require('Graphics.Buttons')
 local boxSheet = require('Graphics.Boxes')
 
@@ -194,7 +197,7 @@ end
 
 function gotoMenu()
   audio.play( proceedLyd  )
-  composer.gotoScene( 'menu' , {effect="slideRight"})
+  composer.gotoScene( 'menu' , {time=transitionTime, effect="slideRight"})
 end
 
 
@@ -260,6 +263,7 @@ local function gameLoop()
 
   if(#aktuelleKolonner == 0) then --Dersom listen er tom, har man tapt
     local result = (numberOfRows - aktuellRad) - 1
+    save.addHighScore(result, nil)
     if(winning) then
       result = 20
     end
@@ -325,20 +329,20 @@ local function ringaDing()
   --Timer
   local totalTid = system.getTimer() - tidsur
 
-  local floor = math.floor
-  local ms = floor(totalTid % 1000)
-  local hundredths = floor(ms / 10)
-  local seconds = floor(totalTid / 1000)
-  local minutes = floor(seconds / 60);   seconds = floor(seconds % 60)
-  local formattedTime = string.format("%02d:%02d:%02d", minutes, seconds, hundredths)
+  save.addHighScore(20, totalTid)
+
+  local formattedTime = time.toFormatedTime(totalTid)
 
   local tidsText = display.newText("Tid: " .. formattedTime, halfW, halfH*0.5+280, font, 30)
   uiGroup:insert(tidsText)
   tidsText.alpha = 0
   transition.fadeIn( tidsText, { time=2500 } )
+
 end
 
 local function winning()
+
+
   winning = true
   audio.play(crowd2Lyd)
   audio.play(party_horn)
@@ -436,8 +440,8 @@ local function klikk(event)
 
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
-			brikkeHastighet = brikkeHastighet - hastighetsFaktor
-      --brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
+			--brikkeHastighet = brikkeHastighet - hastighetsFaktor
+      brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
 		else
       if(#nyAktuelleKolonner > 0) then
         audio.play(maxSpeedLyd)

@@ -9,11 +9,9 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local buttonGraphics = require('Graphics.Buttons')
+local save = require('Data.HighScoreHandler')
 
 
-local function rgb(val)
-  return val/255
-end
 
 local OGSkyGradient
 
@@ -26,12 +24,17 @@ local startGameLyd
 
 local function gotoGame()
   audio.play( startGameLyd )
-  composer.gotoScene( 'game' , {effect="slideLeft"})
+  composer.gotoScene( 'game' , {time=transitionTime,effect="slideLeft"})
 end
 
 local function gotoCredits()
   audio.play(proceed)
-  composer.gotoScene('credits', {effect="slideUp"})
+  composer.gotoScene('credits', {time=transitionTime,effect="slideUp"})
+end
+
+local function gotoStats()
+  audio.play(proceed)
+  composer.gotoScene('highscores', {time=transitionTime,effect="slideRight"})
 end
 
 local function enableSecret()
@@ -96,11 +99,13 @@ function scene:create( event )
 
   playButton:addEventListener("tap", gotoGame)
   creditsButton:addEventListener("tap", gotoCredits)
+  statsButton:addEventListener("tap", gotoStats)
   secretsButton:addEventListener("tap", enableSecret)
 
   proceedLyd = audio.loadSound("Sound/proceed.wav")
   startGameLyd = audio.loadSound("Sound/start_game.wav")
   disabledLyd = audio.loadSound("Sound/disabled.wav")
+
 end
 
 
