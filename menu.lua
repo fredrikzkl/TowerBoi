@@ -10,8 +10,10 @@ local scene = composer.newScene()
 
 local buttonGraphics = require('Graphics.Buttons')
 local save = require('Data.HighScoreHandler')
+local colors = require('Graphics.Colors')
 
 
+local saveFile
 
 local OGSkyGradient
 
@@ -34,12 +36,23 @@ end
 
 local function gotoStats()
   audio.play(proceed)
-  composer.gotoScene('highscores', {time=transitionTime,effect="slideRight"})
+  local options =  {time=transitionTime,
+                    effect="slideRight",
+                    params = {save = saveFile}
+                  }
+  composer.gotoScene('stats',options)
 end
 
 local function enableSecret()
   audio.play(disabledLyd)
 end
+
+local function toggleHardMode()
+  save.toggleHardMode()
+  composer.gotoScene('Scenes.MenuLobby', {time=500, effect='crossFade'})
+
+end
+
 
 
 function createButton(y, color, text)
@@ -72,35 +85,50 @@ end
 function scene:create( event )
   local sceneGroup = self.view
   -- Code here runs when the scene is first created but has not yet appeared on screen
-
+  saveFile = save.loadScores()
+  local hardMode = saveFile.hardMode;
+  print("Harmode:" .. hardMode)
 
   backgroundGroup = display.newGroup()
   sceneGroup:insert(backgroundGroup)
   menuUiGroup = display.newGroup()
   sceneGroup:insert(menuUiGroup)
 
-  OGSkyGradient = {
-    type="gradient",
-    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
-  }
-
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-  background:setFillColor(OGSkyGradient)
+  if(hardMode == 1)then
+    background:setFillColor(colors.hardSkyGradient)
+  else
+    background:setFillColor(colors.skyGradient)
+  end
+
   backgroundGroup:insert(background)
 
   local header = display.newEmbossedText("TowerBoi", halfW, 100, font, 100)
   menuUiGroup:insert(header)
 
   local playButton = createButton(halfH, 1, "Start")
-  local statsButton = createButton(playButton.y+playButton.height + 50, 4, "Stats")
-  local creditsButton = createButton(statsButton.y+statsButton.height + 50, 3, "Credits")
-  local secretsButton = createButton(creditsButton.y+creditsButton.height + 50, 5, "Secret")
+  local statsButton = createButton(playButton.y+playButton.height + 50, 3, "Stats")
+  local creditsButton = createButton(statsButton.y+statsButton.height + 50, 4, "Credits")
+
+
+  if(saveFile.results[20] > 0) then
+    if(hardMode == 0)then
+      local hardModeButton = createButton(creditsButton.y+creditsButton.height + 50, 6, "Expert")
+      hardModeButton:addEventListener("tap", toggleHardMode)
+    else
+      local regularButton = createButton(creditsButton.y+creditsButton.height + 50, 7, "Normal")
+      regularButton:addEventListener("tap", toggleHardMode)
+    end
+
+    else
+      local secretsButton = createButton(creditsButton.y+creditsButton.height + 50, 5, "Secret")
+      secretsButton:addEventListener("tap", enableSecret)
+  end
 
   playButton:addEventListener("tap", gotoGame)
   creditsButton:addEventListener("tap", gotoCredits)
   statsButton:addEventListener("tap", gotoStats)
-  secretsButton:addEventListener("tap", enableSecret)
 
   proceedLyd = audio.loadSound("Sound/proceed.wav")
   startGameLyd = audio.loadSound("Sound/start_game.wav")
@@ -136,7 +164,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
+    composer.removeScene( "menu" )
 	end
 end
 

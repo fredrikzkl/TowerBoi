@@ -30,7 +30,8 @@ local boxSheetMapper = {
       y = 32*4,
       width = 32,
       height = 32
-    }
+    },
+
   }
 }
 

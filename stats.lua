@@ -8,10 +8,11 @@ local scene = composer.newScene()
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 local buttonGraphics = require('Graphics.Buttons')
+local colors = require('Graphics.Colors')
+local save = require('Data.HighScoreHandler')
 
 -- Initialize variables
 
-local save = require('Data.HighScoreHandler')
 local time = require('Utils.TimeManagement')
 
 
@@ -24,8 +25,8 @@ local function deleteData(event)
 	if ( event.action == "clicked" ) then
 			 local i = event.index
 			 if ( i == 1 ) then
-					 composer.gotoScene( "menu", { time=2000, effect="fade" } )
 					 save.deleteHighScore()
+					 composer.gotoScene( "menu", { time=2000, effect="fade" } )
 			 elseif ( i == 2 ) then
 				 	--Do nothing; dialog will simply dismiss
 
@@ -44,37 +45,68 @@ end
 -- -----------------------------------------------------------------------------------
 
 -- create()
+local saveFile
 function scene:create( event )
 
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
     -- Load the scores
-    local saveFile = save.loadScores()
-
-		OGSkyGradient = {
-	    type="gradient",
-	    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
-	  }
-
-
+		saveFile = event.params.save
 	  local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-	  background:setFillColor(OGSkyGradient)
+
+
+		local header = ""
+		local hoydeRecord = 0
+		local timeRecord = 0
+		local gangerSpilt = 0
+		local scores  = {}
+
+
+		if(saveFile.hardMode == 1)then
+			print("HARD MODE STATS")
+			background:setFillColor(colors.hardSkyGradient)
+			header = "Expert Stats"
+			timeRecord = time.toFormatedTime(saveFile["hardBestTime"])
+			scores = saveFile['hardResults']
+		else
+			background:setFillColor(colors.skyGradient)
+			header = "Stats"
+			timeRecord = time.toFormatedTime(saveFile["bestTime"])
+			scores = saveFile['results']
+		end
+
+		local avg = 0
+
+		for i = 1, #scores do
+			print(scores[i])
+			gangerSpilt = gangerSpilt + scores[i]
+			avg = avg + (i * scores[i])
+			if(scores[i] > 0)then
+				hoydeRecord = i
+			end
+		end
+		avg = avg / gangerSpilt
+
+		print(gangerSpilt)
+
 		sceneGroup:insert(background)
 
-    local highScoresHeader = display.newText( sceneGroup, "Stats", display.contentCenterX, 100, font, 60 )
+    local highScoresHeader = display.newText( sceneGroup, header, display.contentCenterX, 100, font, 80 )
 		sceneGroup:insert(highScoresHeader)
 
 
 
-		local bestHeight = display.newText( sceneGroup, "Best Height:" .. saveFile["bestHeight"], display.contentCenterX, 250, font, 40 )
+
+		local bestHeight = display.newText( sceneGroup, "Beste tårn: " .. hoydeRecord, display.contentCenterX, 300, font, 40 )
 		sceneGroup:insert(bestHeight)
 
 
-		local convertedTime = time.toFormatedTime(saveFile["bestTime"])
-		local bestTime = display.newText( sceneGroup, "Best Time:\n " .. convertedTime, display.contentCenterX, 350, font, 40 )
-		sceneGroup:insert(bestTime)
-
+		if(hoydeRecord == 20) then
+			--bestHeight:setFillColor(unpack(colors.green))
+			local bestTime = display.newText( sceneGroup, "Tid: " .. timeRecord, display.contentCenterX, 350, font, 40 )
+			sceneGroup:insert(bestTime)
+		end
 
 
 
@@ -99,6 +131,13 @@ function scene:create( event )
 
 		buttonFrame:addEventListener( "tap", gotoMenu )
 
+
+
+		local timesPlayed = display.newText(sceneGroup, "Antall ganger spilt: " .. gangerSpilt, display.contentCenterX, buttonFrame.y - 100, font, 30)
+		if hoydeRecord == 20 then
+			local timesCompleted = display.newText(sceneGroup,"Ganger rundet spillet: " .. scores[20], display.contentCenterX, timesPlayed.y - 100, font, 30)
+			local avgText = display.newText(sceneGroup,"Gjennomsnittlig høyde: " .. string.format("%.2f",avg), display.contentCenterX, timesPlayed.y - 50, font, 30)
+		end
 
 		local margin = 20
 		local options = {
@@ -152,7 +191,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-		composer.removeScene( "highscores" )
+		composer.removeScene( "stats" )
 	end
 end
 

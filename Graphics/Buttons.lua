@@ -29,6 +29,18 @@ buttonSheetMappper = {
       y = 32*4,
       width = 64,
       height = 32
+    },
+    {--HardMode
+      x = 0,
+      y = 32*5,
+      width = 64,
+      height = 32
+    },
+    {--EasyMode
+      x = 0,
+      y = 32*6,
+      width = 64,
+      height = 32
     }
   }
 }

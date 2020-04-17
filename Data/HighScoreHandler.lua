@@ -6,12 +6,19 @@ local filePath = system.pathForFile( "savefile.json", system.DocumentsDirectory 
 
 --Denne er bare for å vise hvordan filen ser ut
 local saveStructure  = {
-  bestHeight = 0, --Om bestHeigh == 20, så har man runnet spillet
-  bestTime = 0 --Er bare triggered dersom bestHeight == 20,
+  hardMode = 0,
+
+  bestTime = 0,
+  bestTimeDate = 0,
+  results = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+
+
+  hardBestTime = 0,
+  bestTimeDate = 0,
+  hardResults = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 }
 
 local function loadScores()
-
 	local file = io.open( filePath, "r" )
 
   local save
@@ -41,22 +48,44 @@ local function saveScores(jsonVar)
 	end
 end
 
-
-function addHighScore(newHeight, newTime)
+local function toggleHardMode()
   local score = loadScores()
-  if(newHeight > score.bestHeight)then
-    --print("Saved! Old:" .. score.bestHeight .. " new: "..newHeight)
-    score.bestHeight = newHeight
-  end
-  if newTime ~= nil then
-
-    local currentTime = score.bestTime
-    if newTime < currentTime or currentTime == 0 then
-      score.bestTime  = newTime
-    end
+  if score.hardMode == 0 and score.results[20] > 0 then
+    score.hardMode = 1
+  else
+    score.hardMode = 0
   end
   saveScores(score)
 end
+
+
+function addHighScore(newHeight, newTime)
+  local score = loadScores()
+
+  if(score.hardMode == 0) then
+    score.results[newHeight] = score.results[newHeight] + 1
+
+    if newTime ~= nil then
+      local currentTime = score.bestTime
+      if newTime < currentTime or currentTime == 0 then
+        score.bestTime  = newTime
+      end
+    end
+  else
+    score.hardResults[newHeight] = score.hardResults[newHeight] + 1
+
+    if newTime ~= nil then
+      local currentTime = score.hardBestTime
+      if newTime < currentTime or currentTime == 0 then
+        score.hardBestTime  = newTime
+      end
+    end
+  end
+
+  saveScores(score)
+end
+
+
 
 
 
@@ -68,5 +97,6 @@ end
 package["loadScores"] = (loadScores)
 package["addHighScore"] = (addHighScore)
 package["deleteHighScore"] = (deleteHighScore)
+package['toggleHardMode'] = toggleHardMode
 
 return package
