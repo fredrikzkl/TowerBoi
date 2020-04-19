@@ -15,32 +15,32 @@ physics.setGravity( 0, 8 )
 
 local save = require('Data.HighScoreHandler')
 local time = require('Utils.TimeManagement')
+local colors = require('Graphics.Colors')
+local announcer = require('Sound.Announcer')
+local sfx = require('Sound.SFX')
+
 
 local buttonGraphics = require('Graphics.Buttons')
 local boxSheet = require('Graphics.Boxes')
 
-local colors = {
-    {224,229,229}, --Steel (1)
-    --RainBow
-    {230, 38, 31}, --Red(2),
-    {235, 117, 50}, --Orange(3),
-    {247, 208, 56}, --Yellow(4),
-    {163, 224, 72}, --Green(5),
-    {52, 187, 230},  --lyseblå(6),
-    {67, 85, 219},  --blå(7),
-    {210, 59, 231}  --blå(8),
-}
+hardMode = 0
 
+local currentColor
+local colorIndexer
+local colorSelectorStart
+local colorSelectorEnd
 
-local colorIndexer = 2
 function getChosenColor()
   local temp = colorIndexer
   colorIndexer = colorIndexer + 1
-  if(colorIndexer+1 > 6)then
-    colorIndexer = 2
+  if(colorIndexer+1 > colorSelectorEnd)then
+    colorIndexer = colorSelectorStart
   end
   return temp
 end
+
+
+
 
 local function rgb(val)
   return val/255
@@ -113,36 +113,7 @@ local maksBrikkeHastighet = 20
 local debrisTable = {}
 local statiskeBlokkerTable = {}
 
-local currentColor = getChosenColor()
 
---Lyder og myikk
-local proceedLyd
-local byggLyd
-local failLyd
-local bigFailLyd
-local deadLyd
-
-local crowd2Lyd
-local partyHornLyd
-
-
-local maximumSpeedAnnouncer
-local myMomWouldDoBetter
-local maxSpeedLyd
-local doYouEvenTry
-local ggLyd
-local manYouCrazyLyd
-local heyPrettyGoodLyd
-local omgThatsEmbaressingLyd
-local wow2Lyd
-local ohYeahNowWereTalkin
-local youSuckLyd
-local iMeanItsOkIGuessLyd
-local ringadingdingdonMotherfuckerLyd
-local nice1Lyd
-local nice2Lyd
-
---Legger inn bakken, slik at brikken faller på bakken
 
 --Starts verdier
 aktuelleKolonner = {-4,-3,-2,-1,0}
@@ -158,6 +129,7 @@ local veggValg = {
 
 
 local function flyttBrikker()
+  --print("SetterFarge! " .. currentColor)
     --print("Første:[" .. aktuelleKolonner[1] .. "] Siste:[" .. aktuelleKolonner[#aktuelleKolonner] .. "]" .. " - Retning: " .. retning)
     if(aktuelleKolonner[#aktuelleKolonner] == numberOfColumns) then
       retning = "venstre"
@@ -189,14 +161,14 @@ local function flyttBrikker()
 end
 
 local function restart()
-  audio.play( proceedLyd  )
-  composer.gotoScene( 'lobby' )
+  sfx.play('proceed')
+  composer.gotoScene( 'lobby' , {params={mode=hardMode}})
   --local thisScene = composer.getSceneName( 'current' )
   --composer.gotoScene( thisScene )
 end
 
 function gotoMenu()
-  audio.play( proceedLyd  )
+  sfx.play('proceed')
   composer.gotoScene( 'menu' , {time=transitionTime, effect="slideRight"})
 end
 
@@ -267,28 +239,7 @@ local function gameLoop()
     if(winning) then
       result = 20
     end
-    --Lydeffekt
-      if(result < 6) then
-        local rng = math.random(1,3)
-        if(rng == 1) then
-          audio.play( omgThatsEmbaressingLyd )
-        elseif(rng == 2)then
-          audio.play(myMomWouldDoBetter)
-        else
-          audio.play( youSuckLyd )
-        end
-      elseif(result >= 5 and result < 8) then
-        audio.play(iMeanItsOkIGuessLyd)
-      elseif(result >= 8 and result < 12) then
-        audio.play(ggLyd)
-      elseif(result >= 12 and result < 15) then
-        audio.play(ohYeahNowWereTalkin)
-      elseif(result >= 15 and result < 18) then
-        audio.play(heyPrettyGoodLyd)
-      elseif(result >= 18 and result < 20) then
-        audio.play(heyPrettyGoodLyd)
-      end
-    --
+    announcer.react(result)
     aktuelleKolonner = {}
 		Runtime:removeEventListener( "touch", klikk )
 		timer.cancel(gameLoopTimer)
@@ -318,10 +269,18 @@ end
 --
 -----------------------------------------------------------------------------------------
 local function ringaDing()
-  audio.play(ringadingdingdonMotherfuckerLyd)
   generatePlayAgainButton()
 
-  local winText = display.newEmbossedText("You crazy son of a bitch,\n           you did it!", halfW, halfH*0.5+90, font, 50)
+  local winningText
+  if(hardMode == 0)then
+    announcer.say('youCrazySonABitch')
+    winningText = "You crazy son of a bitch,\n           you did it!"
+  else
+    announcer.say("ringaDingDingDong")
+    winningText = "Ding-dong motherfucker, \n            you did it!"
+  end
+
+  local winText = display.newEmbossedText(winningText, halfW, halfH*0.5+90, font, 50)
   uiGroup:insert(winText)
   winText.alpha = 0
   transition.fadeIn( winText, { time=2000 } )
@@ -341,14 +300,9 @@ local function ringaDing()
 end
 
 local function winning()
-
-
   winning = true
-  audio.play(crowd2Lyd)
-  audio.play(party_horn)
+  sfx.winning(hardMode)
   timer.performWithDelay( 2000, ringaDing )
-
-
 end
 
 
@@ -391,14 +345,16 @@ local function klikk(event)
 
 
     if(teller == 0) then
-      audio.play(deadLyd)
+      sfx.play('dead')
     elseif(#aktuelleKolonner-#nyAktuelleKolonner >= 3) then
-      audio.play(bigFailLyd)
+      sfx.play('bigFail')
     elseif(teller < #aktuelleKolonner) then
-      audio.play(failLyd)
+      sfx.play('fail')
     else
-      audio.play(byggLyd)
+      sfx.play('build')
     end
+
+
     if(teller == streak)then
       streakCounter = streakCounter + 1
     else
@@ -406,16 +362,7 @@ local function klikk(event)
       streak = teller
     end
 
-    if(streakCounter%3 == 0 and streakCounter > 0) then
-      local rng = math.random(1,3)
-      if(rng == 1)then
-        audio.play(wow2Lyd)
-      elseif(rng == 2)then
-        audio.play(nice1Lyd)
-      elseif(rng == 3)then
-        audio.play(nice2Lyd)
-      end
-    end
+    announcer.streak(streakCounter)
 
 
 	  --NyeAktuelleKolonner skal inneholde de verdiene som erinnenfor
@@ -444,7 +391,7 @@ local function klikk(event)
       brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
 		else
       if(#nyAktuelleKolonner > 0) then
-        audio.play(maxSpeedLyd)
+        sfx.play('maxSpeed')
         maxSpeedLyd = nil
       end
 		end
@@ -480,6 +427,7 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+  hardMode = event.params.mode
 
 
   mainGroup = display.newGroup()
@@ -507,47 +455,41 @@ function scene:create( event )
   mainGroup:insert(veggVenstre)
   mainGroup:insert(hoyreVegg)
 
-  local OGSkyGradient = {
-    type="gradient",
-    color1={rgb(20),rgb(71),rgb(153)}, color2={rgb(52),rgb(237),rgb(212)}, direction="down"
-  }
-
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-  background:setFillColor(OGSkyGradient)
+
+
+  local groundColor = 1
+  if(hardMode == 1)then
+    background:setFillColor(colors.hardSkyGradient)
+    colorIndexer = 7
+    colorSelectorStart = 7
+    colorSelectorEnd = 11
+    groundColor = 6
+  else
+    background:setFillColor(colors.skyGradient)
+    colorIndexer = 2
+    colorSelectorStart = 2
+    colorSelectorEnd = 6
+  end
+  currentColor = getChosenColor()
+
+
   mainGroup:insert(background)
 
   --Legger den nederste raden med blokker
   for i = minGrense, ovreGrense do
-    local temp = addBuildingBlock(i,numberOfRows,1) --Stålfarge = 1
+    local temp = addBuildingBlock(i,numberOfRows,groundColor) --Stålfarge = 1
     physics.addBody(temp, "static" , { friction=0.5 })
   end
 
   gameLoopTimer = nil
   gameLoopTimer = timer.performWithDelay(brikkeHastighet, gameLoop, 0)
 
-  byggLyd = audio.loadSound("Sound/build.wav")
-  maxSpeedLyd = audio.loadSound( "Sound/maxSpeed.wav")
-  proceedLyd = audio.loadSound("Sound/proceed.wav")
-  failLyd = audio.loadSound("Sound/fail.wav")
-  bigFailLyd = audio.loadSound("Sound/big_fail.wav")
-  deadLyd = audio.loadSound("Sound/dead_2.wav")
-  crowd2Lyd =  audio.loadSound("Sound/Crowd_2.mp3")
-  party_horn =  audio.loadSound("Sound/party_horn.mp3")
 
-  myMomWouldDoBetter = audio.loadSound("Sound/Announcer/myMom.wav")
-  wow2Lyd = audio.loadSound("Sound/Announcer/wow-2.wav")
-  heyPrettyGoodLyd = audio.loadSound("Sound/Announcer/hey-thats-pretty-good.wav")
-  maximumSpeedAnnouncer = audio.loadSound('Sound/Announcer/maximum-speed-2.wav')
-  omgThatsEmbaressingLyd = audio.loadSound( "Sound/Announcer/omg-thats-embaressing.wav" )
-  ohYeahNowWereTalkin = audio.loadSound("Sound/Announcer/ah-yeah-now-were-talkin.wav")
-  youSuckLyd = audio.loadSound( "Sound/Announcer/you-suck.wav"  )
-  iMeanItsOkIGuessLyd = audio.loadSound( "Sound/Announcer/i-mean-its-ok-i-guess.wav"  )
-  nice1Lyd = audio.loadSound( "Sound/Announcer/nice-1.wav")
-  nice2Lyd = audio.loadSound( "Sound/Announcer/nice-2.wav")
 
-  ggLyd = audio.loadSound("Sound/Announcer/gg.wav")
-  manYouCrazyLyd = audio.loadSound("Sound/Announcer/man-you-crazy.wav")
-  ringadingdingdonMotherfuckerLyd = audio.loadSound("Sound/Announcer/ringadingdingdong-motherfucker.wav")
+
+
+
 end
 
 

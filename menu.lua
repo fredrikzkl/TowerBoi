@@ -26,7 +26,8 @@ local startGameLyd
 
 local function gotoGame()
   audio.play( startGameLyd )
-  composer.gotoScene( 'game' , {time=transitionTime,effect="slideLeft"})
+
+  composer.gotoScene( 'game' , {time=transitionTime,effect="slideLeft", params={mode=saveFile['hardMode']}})
 end
 
 local function gotoCredits()
