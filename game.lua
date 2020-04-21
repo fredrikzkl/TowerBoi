@@ -42,11 +42,6 @@ end
 
 
 
-local function rgb(val)
-  return val/255
-end
-
-
 local gridHeight = 0.99
 --Grid verdier
 numberOfColumns = 11
@@ -104,11 +99,13 @@ local aktuellRad --Raden spilleren er på
 local aktuelleKolonner
  --Raden de ligger på, startsbrikker
 local retning
-local brikkeHastighet, OGBrikkeHastighet = 150,150
+local brikkeHastighet, OGBrikkeHastighet
 
-local hastighetsFaktor = 10
-local okningsTid = 3000
-local maksBrikkeHastighet = 20
+local hastighetsFaktor
+local okningsTid
+local maksBrikkeHastighet
+
+
 
 local debrisTable = {}
 local statiskeBlokkerTable = {}
@@ -168,7 +165,7 @@ local function restart()
 end
 
 function gotoMenu()
-  sfx.play('proceed')
+  sfx.click()
   composer.gotoScene( 'menu' , {time=transitionTime, effect="slideRight"})
 end
 
@@ -252,6 +249,10 @@ local function gameLoop()
 		local points = display.newText("Høyde: " .. result, halfW, halfH*0.65+45, font, 30)
 		uiGroup:insert(points)
 
+    if(hardMode == 1)then
+      --ggbro:setFillColor(0,0,0)
+      --points:setFillColor(0,0,0)
+    end
 
 		--display.newText("GG, bro", halfW, halfH, font, 40)
     timer.performWithDelay(1000, generatePlayAgainButton)
@@ -326,6 +327,14 @@ end
 local streak = 5
 local streakCounter = 0
 
+--
+-- CLICK Functions
+--
+
+local restFart = 0 --Variabel brukt i hardMode. Siden det er random hvor mye
+--Hastingheten endrer seg hver gang (ergo, ødelegger rytmen), blir "ekstra" fart spart
+--i denne variablen
+
 local function klikk(event)
 	if event.phase == 'began' and (#aktuelleKolonner > 0)  then
 
@@ -384,16 +393,15 @@ local function klikk(event)
 	  aktuellRad = aktuellRad - 1
     currentColor = getChosenColor()
 
+    if(hardMode == 1)then
+
+    end
+
 
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
-			--brikkeHastighet = brikkeHastighet - hastighetsFaktor
-      brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
-		else
-      if(#nyAktuelleKolonner > 0) then
-        sfx.play('maxSpeed')
-        maxSpeedLyd = nil
-      end
+		  brikkeHastighet = brikkeHastighet - hastighetsFaktor
+      --brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
 		end
 		timer.cancel(gameLoopTimer)
 		gameLoopTimer = nil
@@ -465,13 +473,24 @@ function scene:create( event )
     colorSelectorStart = 7
     colorSelectorEnd = 11
     groundColor = 6
+
+    hastighetsFaktor = 12
+    maksBrikkeHastighet = 10
+    brikkeHastighet, OGBrikkeHastighet = 150,150
   else
     background:setFillColor(colors.skyGradient)
     colorIndexer = 2
     colorSelectorStart = 2
     colorSelectorEnd = 6
+
+    hastighetsFaktor = 10
+    maksBrikkeHastighet = 20
+    brikkeHastighet, OGBrikkeHastighet = 150,150
   end
   currentColor = getChosenColor()
+
+
+
 
 
   mainGroup:insert(background)

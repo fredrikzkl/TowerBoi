@@ -11,32 +11,30 @@ local scene = composer.newScene()
 local buttonGraphics = require('Graphics.Buttons')
 local save = require('Data.HighScoreHandler')
 local colors = require('Graphics.Colors')
+local sfx = require('Sound.SFX')
+local announcer = require('Sound.Announcer')
+
 
 
 local saveFile
 
-local OGSkyGradient
 
 local backgroundGroup
 local menuUiGroup
 
-local proceedLyd
-local disabledLyd
-local startGameLyd
-
 local function gotoGame()
-  audio.play( startGameLyd )
-
+  sfx.play('proceed')
+  announcer.letsGo()
   composer.gotoScene( 'game' , {time=transitionTime,effect="slideLeft", params={mode=saveFile['hardMode']}})
 end
 
 local function gotoCredits()
-  audio.play(proceed)
-  composer.gotoScene('credits', {time=transitionTime,effect="slideUp"})
+  sfx.click()
+  composer.gotoScene('credits', {time=transitionTime,effect="slideUp", params={mode=saveFile['hardMode']}})
 end
 
 local function gotoStats()
-  audio.play(proceed)
+  sfx.click()
   local options =  {time=transitionTime,
                     effect="slideRight",
                     params = {save = saveFile}
@@ -45,10 +43,15 @@ local function gotoStats()
 end
 
 local function enableSecret()
-  audio.play(disabledLyd)
+  sfx.play("disabled")
 end
 
 local function toggleHardMode()
+  if(saveFile['hardMode'] == 0)then
+    sfx.play('hardMode')
+  else
+    sfx.play('normalMode')
+  end
   save.toggleHardMode()
   composer.gotoScene('Scenes.MenuLobby', {time=500, effect='crossFade'})
 
@@ -97,16 +100,20 @@ function scene:create( event )
 
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
+
+  local header = display.newEmbossedText("TowerBoi", halfW, 100, font, 100)
+  menuUiGroup:insert(header)
+
   if(hardMode == 1)then
     background:setFillColor(colors.hardSkyGradient)
+    --header:setFillColor(unpack(colors.mursteinsRod))
   else
     background:setFillColor(colors.skyGradient)
   end
 
   backgroundGroup:insert(background)
 
-  local header = display.newEmbossedText("TowerBoi", halfW, 100, font, 100)
-  menuUiGroup:insert(header)
+
 
   local playButton = createButton(halfH, 1, "Start")
   local statsButton = createButton(playButton.y+playButton.height + 50, 3, "Stats")
@@ -131,9 +138,6 @@ function scene:create( event )
   creditsButton:addEventListener("tap", gotoCredits)
   statsButton:addEventListener("tap", gotoStats)
 
-  proceedLyd = audio.loadSound("Sound/proceed.wav")
-  startGameLyd = audio.loadSound("Sound/start_game.wav")
-  disabledLyd = audio.loadSound("Sound/disabled.wav")
 
 end
 

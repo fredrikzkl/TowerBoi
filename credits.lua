@@ -7,8 +7,10 @@ local scene = composer.newScene()
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
+local sfx = require('Sound.SFX')
 
 local buttonGraphics = require('Graphics.Buttons')
+local colors = require('Graphics.Colors')
 
 
 local function rgb(val)
@@ -25,7 +27,7 @@ local disabledLyd
 local startGameLyd
 
 local function gotoMenu()
-  audio.play( proceedLyd )
+  sfx.click()
   composer.gotoScene( 'menu' , {time=transitionTime,effect="slideDown"})
 end
 
@@ -61,21 +63,23 @@ end
 function scene:create( event )
   local sceneGroup = self.view
   -- Code here runs when the scene is first created but has not yet appeared on screen
-
+  local mode = event.params.mode
 
   backgroundGroup = display.newGroup()
   sceneGroup:insert(backgroundGroup)
   menuUiGroup = display.newGroup()
   sceneGroup:insert(menuUiGroup)
 
-  SkyGradient = {
-    type="gradient",
-    color1={rgb(52),rgb(237),rgb(212)}, color2={rgb(247),rgb(124),rgb(245)}, direction="down"
-  }
+
 
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-  background:setFillColor(SkyGradient)
+  if(mode == 0)then
+    background:setFillColor(colors.skyGradient2)
+  else
+    background:setFillColor(colors.hardSkyGradient2)
+  end
+
   backgroundGroup:insert(background)
 
   local header = display.newEmbossedText("Credits", halfW, 100, font, 80)

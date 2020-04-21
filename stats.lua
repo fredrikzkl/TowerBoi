@@ -12,11 +12,12 @@ local colors = require('Graphics.Colors')
 local save = require('Data.HighScoreHandler')
 
 -- Initialize variables
-
+local sfx = require('Sound.SFX')
 local time = require('Utils.TimeManagement')
 
 
 local function gotoMenu()
+	sfx.click()
 	composer.gotoScene( "menu", { time=transitionTime, effect="slideLeft" } )
 end
 
@@ -25,6 +26,7 @@ local function deleteData(event)
 	if ( event.action == "clicked" ) then
 			 local i = event.index
 			 if ( i == 1 ) then
+				 	 sfx.play("deleteSave")
 					 save.deleteHighScore()
 					 composer.gotoScene( "menu", { time=2000, effect="fade" } )
 			 elseif ( i == 2 ) then
@@ -36,6 +38,7 @@ local function deleteData(event)
 end
 
 local function deleteWarning()
+	sfx.click()
 	local alert = native.showAlert( "Slette spilldata", "Sikker på at du vil fjerne dine episke rekorder?", { "Slett", "Avbryt" }, deleteData )
 end
 
@@ -159,6 +162,14 @@ function scene:create( event )
 		sceneGroup:insert(slettText)
 
 		slettButton:addEventListener( "tap", deleteWarning )
+
+
+		local deviceInfo = display.newText(sceneGroup, system.getInfo( 'platform' ), 10, screenH-10, font, 20)
+		deviceInfo.anchorX = 0
+		deviceInfo:setFillColor(0,0,0)
+		local version = display.newText(sceneGroup, version, 10, screenH-25, font, 20)
+		version:setFillColor(0,0,0)
+		version.anchorX = 0
 
 
 end

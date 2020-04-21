@@ -1,5 +1,7 @@
  local composer = require( "composer" )
 
+--DENNE MÅ OPPDATERS NÅR SPILLET OPPDATERS
+version = "1.0.0"
 -- Hide status bar
 display.setStatusBar( display.HiddenStatusBar )
 
@@ -21,5 +23,5 @@ halfW, halfH =  screenW*0.5, screenH*0.5
 
 
 
--- Go to the menu screen
-composer.gotoScene( 'menu', { time=transitionTime, effect="fade" } )
+-- Go to the menu screen , params={mode=1}
+composer.gotoScene( 'menu', { time=transitionTime, effect="fade" })

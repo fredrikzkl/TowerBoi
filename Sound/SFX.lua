@@ -9,6 +9,14 @@ local bigFailLyd = audio.loadSound("Sound/big_fail.wav")
 local deadLyd = audio.loadSound("Sound/dead_2.wav")
 local crowd2Lyd =  audio.loadSound("Sound/Crowd_2.mp3")
 local party_horn =  audio.loadSound("Sound/party_horn.mp3")
+local deleteSave = audio.loadSound("Sound/deleteSave.wav")
+local disabled = audio.loadSound("Sound/disabled.wav")
+
+
+local normalMode = audio.loadSound("Sound/normalMode.wav")
+local hardMode = audio.loadSound("Sound/expertMode.wav")
+
+local macClick = audio.loadSound("Sound/macKlikk.wav")
 
 
 local function play(key)
@@ -18,13 +26,25 @@ local function play(key)
     audio.play(bigFailLyd)
   elseif key == 'fail' then
     audio.play(failLyd)
-  elseif('build') then
+  elseif key == 'build' then
     audio.play(byggLyd)
   elseif key == 'maxSpeed' then
     audio.play(maxSpeedLyd)
   elseif key == 'proceed' then
     audio.play(proceedLyd)
+  elseif key=='normalMode' then
+    audio.play(normalMode)
+  elseif key=='hardMode' then
+    audio.play(hardMode)
+  elseif key=='deleteSave'then
+    audio.play(deleteSave)
+  elseif key=='disabled' then
+    audio.play(disabled)
   end
+end
+
+local function click()
+  audio.play(macClick)
 end
 
 
@@ -37,4 +57,5 @@ end
 
 sfxPck['play'] = play
 sfxPck['winning'] = winning
+sfxPck['click'] = click
 return sfxPck

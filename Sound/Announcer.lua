@@ -24,6 +24,11 @@ local nice2Lyd = audio.loadSound( path.."nice-2.wav")
 local ggLyd = audio.loadSound(path.."gg.wav")
 local manYouCrazyLyd = audio.loadSound(path.."man-you-crazy.wav")
 
+
+local letsGo1 = audio.loadSound(path.."lets-go.wav")
+local letsGo2 = audio.loadSound(path.."lets-go-2.wav")
+local letsGo3 = audio.loadSound(path.."lets-go-3.wav")
+
 --
 --  Functions
 --
@@ -77,9 +82,22 @@ local function streak(streak)
 end
 
 
+local function letsGo()
+  local rng = math.random(1,3)
+  if(rng == 1)then
+    audio.play(letsGo1)
+  elseif(rng == 2)then
+    audio.play(letsGo2)
+  elseif(rng == 3)then
+    audio.play(letsGo3)
+  end
+end
+
+
 
 announcerPck['say'] = say
 announcerPck['react'] = react
 announcerPck['streak'] = streak
+announcerPck['letsGo'] = letsGo
 
 return announcerPck
