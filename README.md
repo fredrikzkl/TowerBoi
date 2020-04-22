@@ -8,6 +8,7 @@ Første spillet jeg lager i Lua (med Corona Labs Engine).
 * Expert/Normal mode sound effect
 * Soundtrack
 * Lydnivå
+* Fikse scenes, organisere prosjektet litt xD
 
 #### Nice to have:
 * Settings
