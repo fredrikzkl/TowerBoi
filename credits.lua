@@ -12,19 +12,11 @@ local sfx = require('Sound.SFX')
 local buttonGraphics = require('Graphics.Buttons')
 local colors = require('Graphics.Colors')
 
-
-local function rgb(val)
-  return val/255
-end
-
 local OGSkyGradient
 
 local backgroundGroup
 local menuUiGroup
 
-local proceedLyd
-local disabledLyd
-local startGameLyd
 
 local function gotoMenu()
   sfx.click()
@@ -70,17 +62,20 @@ function scene:create( event )
   menuUiGroup = display.newGroup()
   sceneGroup:insert(menuUiGroup)
 
+  print("Mode Active for Credits: " .. mode)
 
 
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
+
+
   if(mode == 0)then
     background:setFillColor(colors.skyGradient2)
   else
     background:setFillColor(colors.hardSkyGradient2)
   end
 
-  backgroundGroup:insert(background)
+  menuUiGroup:insert(background)
 
   local header = display.newEmbossedText("Credits", halfW, 100, font, 80)
   menuUiGroup:insert(header)
@@ -104,9 +99,7 @@ function scene:create( event )
   local backButton = createButton(screenH-180, 2, "Tilbake")
   backButton:addEventListener("tap", gotoMenu)
 
-  proceedLyd = audio.loadSound("Sound/proceed.wav")
-  startGameLyd = audio.loadSound("Sound/start_game.wav")
-  disabledLyd = audio.loadSound("Sound/disabled.wav")
+
 end
 
 
@@ -137,7 +130,7 @@ function scene:hide( event )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs immediately after the scene goes entirely off screen
-
+    composer.removeScene( "credits" )
 	end
 end
 

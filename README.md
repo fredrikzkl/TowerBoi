@@ -3,8 +3,9 @@ Første spillet jeg lager i Lua (med Corona Labs Engine).
 
 
 ### TODO List:
-* Fjerne alle "ekko" effektene fra announcer voice
 * Legge til flere reactions (voice lines)
+  - Do you even try?
+  - GG variasjoner
 * Expert/Normal mode sound effect
 * Soundtrack
 * Lydnivå

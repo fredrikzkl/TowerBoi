@@ -13,9 +13,12 @@ local myMomWouldDoBetter = audio.loadSound(path.."myMom.wav")
 local heyPrettyGoodLyd = audio.loadSound(path.."hey-thats-pretty-good.wav")
 local maximumSpeedAnnouncer = audio.loadSound(path.."maximum-speed-2.wav")
 local omgThatsEmbaressingLyd = audio.loadSound( path.."omg-thats-embaressing.wav" )
-local ohYeahNowWereTalkin = audio.loadSound(path.."ah-yeah-now-were-talkin.wav")
+local ohYeahNowWereTalkin = audio.loadSound(path.."ah-yeah-now-were-talkin-2.wav")
 local youSuckLyd = audio.loadSound( path.."you-suck.wav"  )
 local iMeanItsOkIGuessLyd = audio.loadSound( path.."i-mean-its-ok-i-guess.wav"  )
+local godDamnClose = audio.loadSound( path.."so-god-damn-close.wav"  )
+local shitsNitzelgodDamnClose = audio.loadSound( path.."aah-shitsnitzel-so-god-damn-close.wav"  )
+local doYouEvenTry = audio.loadSound( path.."do-you-even-try.wav"  )
 
 local wow2Lyd = audio.loadSound(path.."wow-2.wav")
 local nice1Lyd = audio.loadSound( path.."nice-1.wav")
@@ -46,7 +49,7 @@ local function say(key)
 end
 
 local function react(points)
-  if(points < 6) then
+  if(points < 7) then
     local rng = math.random(1,3)
     if(rng == 1) then
       audio.play( omgThatsEmbaressingLyd )
@@ -55,16 +58,18 @@ local function react(points)
     else
       audio.play( youSuckLyd )
     end
-  elseif(points >= 5 and points < 8) then
+  elseif(points == 8) then
+    audio.play(doYouEvenTry)
+  elseif(points >= 8 and points < 10) then
     audio.play(iMeanItsOkIGuessLyd)
-  elseif(points >= 8 and points < 12) then
+  elseif(points >= 10 and points < 13) then
     audio.play(ggLyd)
-  elseif(points >= 12 and points < 15) then
+  elseif(points >= 13 and points < 16) then
     audio.play(ohYeahNowWereTalkin)
-  elseif(points >= 15 and points < 18) then
+  elseif(points >= 16 and points < 18) then
     audio.play(heyPrettyGoodLyd)
-  elseif(points >= 18 and points < 20) then
-    audio.play(heyPrettyGoodLyd)
+  elseif(points >= 18 and points <20)then
+    audio.play(shitsNitzelgodDamnClose)
   end
 end
 

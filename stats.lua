@@ -95,19 +95,19 @@ function scene:create( event )
 
 		sceneGroup:insert(background)
 
-    local highScoresHeader = display.newText( sceneGroup, header, display.contentCenterX, 100, font, 80 )
+    local highScoresHeader = display.newEmbossedText( sceneGroup, header, display.contentCenterX, 100, font, 80 )
 		sceneGroup:insert(highScoresHeader)
 
 
 
 
-		local bestHeight = display.newText( sceneGroup, "Beste tårn: " .. hoydeRecord, display.contentCenterX, 300, font, 40 )
+		local bestHeight = display.newEmbossedText( sceneGroup, "Beste tårn: " .. hoydeRecord, display.contentCenterX, 300, font, 40 )
 		sceneGroup:insert(bestHeight)
 
 
 		if(hoydeRecord == 20) then
 			--bestHeight:setFillColor(unpack(colors.green))
-			local bestTime = display.newText( sceneGroup, "Tid: " .. timeRecord, display.contentCenterX, 350, font, 40 )
+			local bestTime = display.newEmbossedText( sceneGroup, "Tid: " .. timeRecord, display.contentCenterX, 350, font, 40 )
 			sceneGroup:insert(bestTime)
 		end
 
@@ -136,10 +136,10 @@ function scene:create( event )
 
 
 
-		local timesPlayed = display.newText(sceneGroup, "Antall ganger spilt: " .. gangerSpilt, display.contentCenterX, buttonFrame.y - 100, font, 30)
+		local timesPlayed = display.newEmbossedText(sceneGroup, "Antall ganger spilt: " .. gangerSpilt, display.contentCenterX, buttonFrame.y - 100, font, 30)
 		if hoydeRecord == 20 then
-			local timesCompleted = display.newText(sceneGroup,"Ganger rundet spillet: " .. scores[20], display.contentCenterX, timesPlayed.y - 100, font, 30)
-			local avgText = display.newText(sceneGroup,"Gjennomsnittlig høyde: " .. string.format("%.2f",avg), display.contentCenterX, timesPlayed.y - 50, font, 30)
+			local timesCompleted = display.newEmbossedText(sceneGroup,"Ganger rundet spillet: " .. scores[20], display.contentCenterX, timesPlayed.y - 100, font, 30)
+			local avgText = display.newEmbossedText(sceneGroup,"Gjennomsnittlig høyde: " .. string.format("%.2f",avg), display.contentCenterX, timesPlayed.y - 50, font, 30)
 		end
 
 		local margin = 20
@@ -164,11 +164,11 @@ function scene:create( event )
 		slettButton:addEventListener( "tap", deleteWarning )
 
 
-		local deviceInfo = display.newText(sceneGroup, system.getInfo( 'platform' ), 10, screenH-10, font, 20)
+		local deviceInfo = display.newEmbossedText(sceneGroup, system.getInfo( 'platform' ), 10, screenH-10, font, 20)
 		deviceInfo.anchorX = 0
-		deviceInfo:setFillColor(0,0,0)
-		local version = display.newText(sceneGroup, version, 10, screenH-25, font, 20)
-		version:setFillColor(0,0,0)
+		--deviceInfo:setFillColor(0,0,0)
+		local version = display.newEmbossedText(sceneGroup, version, 10, screenH-25, font, 20)
+		--version:setFillColor(0,0,0)
 		version.anchorX = 0
 
 
