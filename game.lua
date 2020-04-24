@@ -199,7 +199,7 @@ local function generatePlayAgainButton()
   buttonFrame.x = halfW
   buttonFrame.y = screenH-150
 
-  local playAgain = display.newText("Spill igjen", buttonFrame.x, buttonFrame.y, font, 50)
+  local playAgain = display.newEmbossedText("Spill igjen", buttonFrame.x, buttonFrame.y, font, 50)
   playAgain:setFillColor(1,1,1)
   uiGroup:insert(playAgain)
   buttonFrame:addEventListener( "tap", restart )
@@ -211,7 +211,7 @@ local function generatePlayAgainButton()
   local backButtonFrame = display.newImageRect(uiGroup, buttonGraphics,3, 260, 85 )
   backButtonFrame.x = halfW
   backButtonFrame.y = playAgain.y-150
-  local backButtonText = display.newText("Tilbake", backButtonFrame.x, backButtonFrame.y, font, 50)
+  local backButtonText = display.newEmbossedText("Tilbake", backButtonFrame.x, backButtonFrame.y, font, 50)
 
   uiGroup:insert(backButtonFrame)
   uiGroup:insert(backButtonText)
@@ -243,10 +243,10 @@ local function gameLoop()
 
 		print("Ferdig! Du bygget et hus på " .. result )
 
-		local ggbro = display.newText("GG, bro", halfW, halfH*0.5+45, font, 50)
+		local ggbro = display.newEmbossedText("GG, bro", halfW, halfH*0.5+45, font, 50)
 
 		uiGroup:insert(ggbro)
-		local points = display.newText("Høyde: " .. result, halfW, halfH*0.65+45, font, 30)
+		local points = display.newEmbossedText("Høyde: " .. result, halfW, halfH*0.65+45, font, 30)
 		uiGroup:insert(points)
 
     if(hardMode == 1)then
@@ -254,7 +254,7 @@ local function gameLoop()
       --points:setFillColor(0,0,0)
     end
 
-		--display.newText("GG, bro", halfW, halfH, font, 40)
+		--display.newEmbossedText("GG, bro", halfW, halfH, font, 40)
     timer.performWithDelay(1000, generatePlayAgainButton)
   end
   end
@@ -293,7 +293,7 @@ local function ringaDing()
 
   local formattedTime = time.toFormatedTime(totalTid)
 
-  local tidsText = display.newText("Tid: " .. formattedTime, halfW, halfH*0.5+280, font, 30)
+  local tidsText = display.newEmbossedText("Tid: " .. formattedTime, halfW, halfH*0.5+280, font, 30)
   uiGroup:insert(tidsText)
   tidsText.alpha = 0
   transition.fadeIn( tidsText, { time=2500 } )

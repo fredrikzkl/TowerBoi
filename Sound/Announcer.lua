@@ -4,7 +4,13 @@ local path = "Sound/Announcer/"
 
 --
 --  Load those beautiful annoucner voicelines
+-- CHANNEL 3
 --
+
+local options =
+{
+    channel = 3
+}
 
 local youCrazySonABitch = audio.loadSound(path.."you-crazy-son-of-a-bitch.wav")
 local ringaDingDingDong = audio.loadSound(path.."ringadingdingdong-motherfucker.wav")
@@ -20,6 +26,8 @@ local godDamnClose = audio.loadSound( path.."so-god-damn-close.wav"  )
 local shitsNitzelgodDamnClose = audio.loadSound( path.."aah-shitsnitzel-so-god-damn-close.wav"  )
 local doYouEvenTry = audio.loadSound( path.."do-you-even-try.wav"  )
 
+--Streaks
+local onFire = audio.loadSound(path.."on-fire.wav")
 local wow2Lyd = audio.loadSound(path.."wow-2.wav")
 local nice1Lyd = audio.loadSound( path.."nice-1.wav")
 local nice2Lyd = audio.loadSound( path.."nice-2.wav")
@@ -38,9 +46,9 @@ local letsGo3 = audio.loadSound(path.."lets-go-3.wav")
 
 local function say(key)
   if(key == "youCrazySonABitch")then
-      audio.play(youCrazySonABitch)
+      audio.play(youCrazySonABitch, options)
   elseif(key == 'ringaDingDingDong')then
-      audio.play(ringaDingDingDong)
+      audio.play(ringaDingDingDong, options)
 
   else
     print("Could not find announcer-key '" .. key "'")
@@ -49,54 +57,69 @@ local function say(key)
 end
 
 local function react(points)
-  if(points < 7) then
+  if(points < 8) then
     local rng = math.random(1,3)
     if(rng == 1) then
-      audio.play( omgThatsEmbaressingLyd )
+      audio.play( omgThatsEmbaressingLyd , options)
     elseif(rng == 2)then
-      audio.play(myMomWouldDoBetter)
+      audio.play(myMomWouldDoBetter, options)
     else
-      audio.play( youSuckLyd )
+      audio.play( youSuckLyd , options)
     end
   elseif(points == 8) then
-    audio.play(doYouEvenTry)
+    audio.play(doYouEvenTry, options)
   elseif(points >= 8 and points < 10) then
-    audio.play(iMeanItsOkIGuessLyd)
+    audio.play(iMeanItsOkIGuessLyd, options)
   elseif(points >= 10 and points < 13) then
-    audio.play(ggLyd)
+    audio.play(ggLyd, options)
   elseif(points >= 13 and points < 16) then
-    audio.play(ohYeahNowWereTalkin)
+    audio.play(ohYeahNowWereTalkin, options)
   elseif(points >= 16 and points < 18) then
-    audio.play(heyPrettyGoodLyd)
+    audio.play(heyPrettyGoodLyd, options)
   elseif(points >= 18 and points <20)then
-    audio.play(shitsNitzelgodDamnClose)
+    audio.play(shitsNitzelgodDamnClose, options)
   end
 end
 
+local nice = 0
 local function streak(streak)
-  if(streak%3 == 0 and streak > 0) then
+  if streak < 3 then
+    nice = 0
+  end
+
+  if(nice == 1 and streak > 3) then
+    audio.play(nice2Lyd, options)
+    nice = 0
+    return
+  end
+
+  if(streak%4 == 0 and streak > 0) then
     local rng = math.random(1,3)
     if(rng == 1)then
-      audio.play(wow2Lyd)
+      audio.play(wow2Lyd, options)
     elseif(rng == 2)then
-      audio.play(nice1Lyd)
+      audio.play(nice1Lyd, options)
+      nice = 1
     elseif(rng == 3)then
-      audio.play(nice2Lyd)
+      audio.play(onFire, options)
     end
   end
+
+
 end
 
 
 local function letsGo()
   local rng = math.random(1,3)
   if(rng == 1)then
-    audio.play(letsGo1)
+    audio.play(letsGo1, options)
   elseif(rng == 2)then
-    audio.play(letsGo2)
+    audio.play(letsGo2,options)
   elseif(rng == 3)then
-    audio.play(letsGo3)
+    audio.play(letsGo3,options)
   end
 end
+
 
 
 

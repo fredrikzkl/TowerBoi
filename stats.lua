@@ -67,7 +67,6 @@ function scene:create( event )
 
 
 		if(saveFile.hardMode == 1)then
-			print("HARD MODE STATS")
 			background:setFillColor(colors.hardSkyGradient)
 			header = "Expert Stats"
 			timeRecord = time.toFormatedTime(saveFile["hardBestTime"])
@@ -164,12 +163,8 @@ function scene:create( event )
 		slettButton:addEventListener( "tap", deleteWarning )
 
 
-		local deviceInfo = display.newEmbossedText(sceneGroup, system.getInfo( 'platform' ), 10, screenH-10, font, 20)
-		deviceInfo.anchorX = 0
-		--deviceInfo:setFillColor(0,0,0)
-		local version = display.newEmbossedText(sceneGroup, version, 10, screenH-25, font, 20)
-		--version:setFillColor(0,0,0)
-		version.anchorX = 0
+		local versionControl = getPlatformInfo(sceneGroup)
+
 
 
 end

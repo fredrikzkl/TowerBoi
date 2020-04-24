@@ -18,39 +18,44 @@ local hardMode = audio.loadSound("Sound/expertMode.wav")
 
 local macClick = audio.loadSound("Sound/macKlikk.wav")
 
+local options =
+{
+    channel = 2
+}
+
 
 local function play(key)
   if key == 'dead' then
-    audio.play(deadLyd)
+    audio.play(deadLyd, options)
   elseif key == 'bigFail' then
-    audio.play(bigFailLyd)
+    audio.play(bigFailLyd, options)
   elseif key == 'fail' then
-    audio.play(failLyd)
+    audio.play(failLyd, options)
   elseif key == 'build' then
-    audio.play(byggLyd)
+    audio.play(byggLyd, options)
   elseif key == 'maxSpeed' then
-    audio.play(maxSpeedLyd)
+    audio.play(maxSpeedLyd, options)
   elseif key == 'proceed' then
-    audio.play(proceedLyd)
+    audio.play(proceedLyd, options)
   elseif key=='normalMode' then
-    audio.play(normalMode)
+    audio.play(normalMode, options)
   elseif key=='hardMode' then
-    audio.play(hardMode)
+    audio.play(hardMode, options)
   elseif key=='deleteSave'then
-    audio.play(deleteSave)
+    audio.play(deleteSave, options)
   elseif key=='disabled' then
-    audio.play(disabled)
+    audio.play(disabled, options)
   end
 end
 
 local function click()
-  audio.play(macClick)
+  audio.play(macClick, options)
 end
 
 
 local function winning(mode)
-  audio.play(crowd2Lyd)
-  audio.play(party_horn)
+  audio.play(crowd2Lyd, options)
+  audio.play(party_horn, options)
 end
 
 

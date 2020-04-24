@@ -57,8 +57,8 @@ function scene:create( event )
   -- Code here runs when the scene is first created but has not yet appeared on screen
   local mode = event.params.mode
 
-  backgroundGroup = display.newGroup()
-  sceneGroup:insert(backgroundGroup)
+  --backgroundGroup = display.newGroup()
+  --sceneGroup:insert(backgroundGroup)
   menuUiGroup = display.newGroup()
   sceneGroup:insert(menuUiGroup)
 
@@ -67,7 +67,7 @@ function scene:create( event )
 
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
-
+  sceneGroup:insert(background)
 
   if(mode == 0)then
     background:setFillColor(colors.skyGradient2)

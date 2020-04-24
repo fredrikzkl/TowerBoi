@@ -10,6 +10,7 @@ local scene = composer.newScene()
 
 local buttonGraphics = require('Graphics.Buttons')
 local save = require('Data.HighScoreHandler')
+local innstillinger = require('Data.SettingsHandler')
 local colors = require('Graphics.Colors')
 local sfx = require('Sound.SFX')
 local announcer = require('Sound.Announcer')
@@ -42,6 +43,12 @@ local function gotoStats()
   composer.gotoScene('stats',options)
 end
 
+local function goToSettings()
+  sfx.click()
+  local options =  {time=transitionTime, effect="fade", params={mode=saveFile['hardMode']}}
+  composer.gotoScene('Scenes.Settings', options)
+end
+
 local function enableSecret()
   sfx.play("disabled")
 end
@@ -71,7 +78,7 @@ function createButton(y, color, text)
     fontSize = 50,
     align = "center"
   }
-  local buttonText = display.newText(options)
+  local buttonText = display.newEmbossedText(options)
   local buttonFrame = display.newImageRect(menuUiGroup, buttonGraphics,color, buttonText.width, buttonText.height+margin)
   buttonFrame.x = buttonText.x
   buttonFrame.y = buttonText.y
@@ -90,19 +97,27 @@ function scene:create( event )
   local sceneGroup = self.view
   -- Code here runs when the scene is first created but has not yet appeared on screen
   saveFile = save.loadScores()
+
+  innstillinger.updateVolume()
+
   local hardMode = saveFile.hardMode;
-  print("Harmode:" .. hardMode)
 
   backgroundGroup = display.newGroup()
   sceneGroup:insert(backgroundGroup)
   menuUiGroup = display.newGroup()
   sceneGroup:insert(menuUiGroup)
 
+  --audio.setVolume( 1, {channel=3} )
 
   local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
 
-  local header = display.newEmbossedText("TowerBoi", halfW, 100, font, 100)
-  menuUiGroup:insert(header)
+  local mighty = display.newEmbossedText("Mighty", halfW-120, halfH/2-80, font, 100)
+  mighty.anchorX = 0
+  local heightText = display.newEmbossedText("Height", mighty.x-37, mighty.y+100, font, 100)
+  heightText.anchorX = 0
+  menuUiGroup:insert(mighty)
+  menuUiGroup:insert(heightText)
+
 
   if(hardMode == 1)then
     background:setFillColor(colors.hardSkyGradient)
@@ -138,6 +153,13 @@ function scene:create( event )
   creditsButton:addEventListener("tap", gotoCredits)
   statsButton:addEventListener("tap", gotoStats)
 
+  local settingsButton = display.newImageRect( "Sprites/helpSprites.png",40,40 )
+  settingsButton.x = screenW-30
+  settingsButton.y = screenH-30
+  settingsButton:addEventListener("tap", goToSettings)
+  sceneGroup:insert(settingsButton)
+
+  local versionControl = getPlatformInfo(sceneGroup)
 
 end
 
