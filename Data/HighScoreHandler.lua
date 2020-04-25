@@ -60,6 +60,7 @@ local function loadScores()
 
 	if ( save == nil ) then
 		save = saveStructure
+    save.saveKey = getHash(save)
 	end
 
   return save

@@ -25,9 +25,9 @@ local function goBack()
 	sfx.click()
 	--Updating SettingsFile
 	settingsFile['master'] = (masterVolumeSlider.value/10)
-	settingsFile['music'] = (musicVolumeSlider.value/100)
-	settingsFile['sfx'] = (sfxVolumeSlider.value/100)
-	settingsFile['announcer'] = (announcerVolumeSlider.value/100)
+	settingsFile['music'] = (musicVolumeSlider.value)
+	settingsFile['sfx'] = (sfxVolumeSlider.value)
+	settingsFile['announcer'] = (announcerVolumeSlider.value)
 	settingsHandler.saveSettings(settingsFile)
 
 	composer.gotoScene( "menu", { time=transitionTime, effect="fade" } )
@@ -66,7 +66,7 @@ function scene:create( event )
     {
         x = display.contentCenterX,
         y = 300,
-        width = 400,
+        width = screenW*0.6,
         value = settingsFile['master']*10,  -- Start slider at 10% (optional)
     })
 		sceneGroup:insert(masterVolumeSlider)
@@ -77,8 +77,8 @@ function scene:create( event )
 		{
 				x = display.contentCenterX,
 				y = musicVolumeText.y+50,
-				width = 400,
-				value = settingsFile['music']*100,  -- Start slider at 10% (optional)
+				width = screenW*0.6,
+				value = settingsFile['music'],  -- Start slider at 10% (optional)
 		})
 		sceneGroup:insert(musicVolumeSlider)
 
@@ -88,8 +88,8 @@ function scene:create( event )
 	   {
 	        x = display.contentCenterX,
 	        y = sfxText.y+50,
-	        width = 400,
-	        value = settingsFile['sfx']*100,  -- Start slider at 10% (optional)
+	        width = screenW*0.6,
+	        value = settingsFile['sfx'],  -- Start slider at 10% (optional)
 	   })
 		sceneGroup:insert(sfxVolumeSlider)
 
@@ -99,8 +99,8 @@ function scene:create( event )
     {
 		 		x = display.contentCenterX,
       	y = announcerText.y + 50,
-				width = 400,
-	    	value = settingsFile['announcer']*100,  -- Start slider at 10% (optional)
+				width = screenW*0.6,
+	    	value = settingsFile['announcer'],  -- Start slider at 10% (optional)
 		 })
 		sceneGroup:insert(announcerVolumeSlider)
 

@@ -45,9 +45,9 @@ end
 local function updateVolume()
     local save = loadSettings()
     audio.setVolume( save['master'] )--Master
-    audio.setVolume( save['sfx'], {channel=2} )--Sfx
-    audio.setVolume( save['announcer'], {channel=3} )--Announcer
-    audio.setVolume( save['music'], {channel=4}  )--Music
+    audio.setVolume( save['sfx']/10, {channel=2} )--Sfx
+    audio.setVolume( save['announcer']/10, {channel=3} )--Announcer
+    audio.setVolume( save['music']/10, {channel=4}  )--Music
 end
 
 

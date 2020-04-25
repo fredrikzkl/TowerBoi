@@ -32,8 +32,11 @@ settings =
 		xcassets = "Images.xcassets",
 		plist =
 		{
-			UIStatusBarHidden = false,
-			UILaunchStoryboardName = "LaunchScreen",
+				CFBundleIconFiles = {},  -- Required!
+				UILaunchStoryboardName = "LaunchScreen",  -- Required!
+				UIStatusBarHidden = true,
+				CFBundleDisplayName = "MightyHeight",
+				CFBundleName = "MightyHeight",
 		},
 	},
 
