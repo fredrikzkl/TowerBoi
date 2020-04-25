@@ -339,6 +339,11 @@ local function klikk(event)
 	if event.phase == 'began' and (#aktuelleKolonner > 0)  then
 
 
+    --Debug: Announcer
+    --local result = (numberOfRows - aktuellRad)
+    --announcer.react(result)
+
+
 	  local nyAktuelleKolonner = {}
 	  --Må sjekke hvilke som henger ut
 
@@ -351,6 +356,8 @@ local function klikk(event)
 				lagRester(aktuelleKolonner[i])
 	    end
 	  end
+
+
 
 
     if(teller == 0) then
@@ -400,8 +407,8 @@ local function klikk(event)
 
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
-		  brikkeHastighet = brikkeHastighet - hastighetsFaktor
-      --brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
+		  --brikkeHastighet = brikkeHastighet - hastighetsFaktor
+      brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
 		end
 		timer.cancel(gameLoopTimer)
 		gameLoopTimer = nil

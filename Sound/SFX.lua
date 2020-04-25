@@ -53,9 +53,9 @@ local function click()
 end
 
 
-local function winning(mode)
-  audio.play(crowd2Lyd, options)
-  audio.play(party_horn, options)
+local function winning()
+  audio.play(crowd2Lyd)
+  audio.play(party_horn)
 end
 
 

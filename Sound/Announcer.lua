@@ -15,7 +15,7 @@ local options =
 local youCrazySonABitch = audio.loadSound(path.."you-crazy-son-of-a-bitch.wav")
 local ringaDingDingDong = audio.loadSound(path.."ringadingdingdong-motherfucker.wav")
 
-local myMomWouldDoBetter = audio.loadSound(path.."myMom.wav")
+local myMom = audio.loadSound(path.."myMom.wav")
 local heyPrettyGoodLyd = audio.loadSound(path.."hey-thats-pretty-good.wav")
 local maximumSpeedAnnouncer = audio.loadSound(path.."maximum-speed-2.wav")
 local omgThatsEmbaressingLyd = audio.loadSound( path.."omg-thats-embaressing.wav" )
@@ -62,7 +62,7 @@ local function react(points)
     if(rng == 1) then
       audio.play( omgThatsEmbaressingLyd , options)
     elseif(rng == 2)then
-      audio.play(myMomWouldDoBetter, options)
+      audio.play(myMom , options)
     else
       audio.play( youSuckLyd , options)
     end

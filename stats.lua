@@ -43,6 +43,13 @@ local function deleteWarning()
 end
 
 
+local function compareHash(file)
+	local key = file['saveKey']
+	local tempHash = save.getHash(file)
+	print(tempHash)
+end
+
+
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -56,6 +63,8 @@ function scene:create( event )
 
     -- Load the scores
 		saveFile = event.params.save
+		compareHash(saveFile)
+
 	  local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
 
 
@@ -64,6 +73,7 @@ function scene:create( event )
 		local timeRecord = 0
 		local gangerSpilt = 0
 		local scores  = {}
+		local datePlaced = 0
 
 
 		if(saveFile.hardMode == 1)then
@@ -71,17 +81,18 @@ function scene:create( event )
 			header = "Expert Stats"
 			timeRecord = time.toFormatedTime(saveFile["hardBestTime"])
 			scores = saveFile['hardResults']
+			datePlaced = saveFile['bestHardTimeDate']
 		else
 			background:setFillColor(colors.skyGradient)
 			header = "Stats"
 			timeRecord = time.toFormatedTime(saveFile["bestTime"])
 			scores = saveFile['results']
+			datePlaced = saveFile['bestTimeDate']
 		end
 
 		local avg = 0
 
 		for i = 1, #scores do
-			print(scores[i])
 			gangerSpilt = gangerSpilt + scores[i]
 			avg = avg + (i * scores[i])
 			if(scores[i] > 0)then
@@ -90,7 +101,7 @@ function scene:create( event )
 		end
 		avg = avg / gangerSpilt
 
-		print(gangerSpilt)
+
 
 		sceneGroup:insert(background)
 
@@ -108,6 +119,10 @@ function scene:create( event )
 			--bestHeight:setFillColor(unpack(colors.green))
 			local bestTime = display.newEmbossedText( sceneGroup, "Tid: " .. timeRecord, display.contentCenterX, 350, font, 40 )
 			sceneGroup:insert(bestTime)
+
+			local dateFormat = datePlaced.day .. "/" .. datePlaced.month .. "/" .. datePlaced.year .. " " .. datePlaced.hour .. ":" .. datePlaced.min
+			local datePlacedText = display.newEmbossedText( sceneGroup, "Dato: " .. dateFormat, display.contentCenterX, 400, font, 40 )
+
 		end
 
 

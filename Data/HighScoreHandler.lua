@@ -1,21 +1,42 @@
 local package = {}
 
 local json = require( "json" )
+local crypto = require( "crypto" )
 
 local filePath = system.pathForFile( "savefile.json", system.DocumentsDirectory )
+
+
+function getHash(file)
+  local str = ""
+
+  for i=1, #file['results'] do
+    str = str .. file['results'][i]
+  end
+  str = str .. file['bestTime'] .. file['bestTimeDate'].min .. file['bestTimeDate'].sec
+  str = str .. file['bestTimeDate'].day .. file['bestTimeDate'].month .. file['bestTimeDate'].year
+  for i=1, #file['hardResults'] do
+    str = str .. file['hardResults'][i]
+  end
+  str = str .. file['hardBestTime'] .. file['bestHardTimeDate'].min .. file['bestHardTimeDate'].sec
+  str = str .. file['bestHardTimeDate'].day .. file['bestHardTimeDate'].month .. file['bestHardTimeDate'].year
+
+  return crypto.digest( crypto.sha1, str )
+end
 
 --Denne er bare for å vise hvordan filen ser ut
 local saveStructure  = {
   hardMode = 0,
 
   bestTime = 0,
-  bestTimeDate = 0,
+  bestTimeDate = os.date("*t"),
   results = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
 
 
   hardBestTime = 0,
-  bestTimeDate = 0,
-  hardResults = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  bestHardTimeDate = os.date("*t"),
+  hardResults = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+
+  saveKey = ""
 }
 
 local function loadScores()
@@ -39,7 +60,7 @@ end
 
 
 local function saveScores(jsonVar)
-
+  jsonVar.saveKey = getHash(jsonVar)
 	local file = io.open( filePath, "w" )
 
 	if file then
@@ -69,6 +90,7 @@ function addHighScore(newHeight, newTime)
       local currentTime = score.bestTime
       if newTime < currentTime or currentTime == 0 then
         score.bestTime  = newTime
+        score.bestTimeDate = os.date("*t")
       end
     end
   else
@@ -78,14 +100,13 @@ function addHighScore(newHeight, newTime)
       local currentTime = score.hardBestTime
       if newTime < currentTime or currentTime == 0 then
         score.hardBestTime  = newTime
+        score.bestHardTimeDate = os.date("*t")
       end
     end
   end
 
   saveScores(score)
 end
-
-
 
 
 
@@ -98,5 +119,6 @@ package["loadScores"] = (loadScores)
 package["addHighScore"] = (addHighScore)
 package["deleteHighScore"] = (deleteHighScore)
 package['toggleHardMode'] = toggleHardMode
+package['getHash'] = getHash
 
 return package
