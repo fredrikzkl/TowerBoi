@@ -23,7 +23,10 @@ local saveFile
 local backgroundGroup
 local menuUiGroup
 
+local settingsButton
+
 local function gotoGame()
+  settingsButton:removeSelf()
   sfx.play('proceed')
   announcer.letsGo()
   composer.gotoScene( 'game' , {time=transitionTime,effect="slideLeft", params={mode=saveFile['hardMode']}})
@@ -97,6 +100,7 @@ function scene:create( event )
   local sceneGroup = self.view
   -- Code here runs when the scene is first created but has not yet appeared on screen
   saveFile = save.loadScores()
+  local isCheating = save.checkForCheat(saveFile)
 
   innstillinger.updateVolume()
 
@@ -118,6 +122,19 @@ function scene:create( event )
   menuUiGroup:insert(mighty)
   menuUiGroup:insert(heightText)
 
+
+  if(isCheating)then
+    display.newEmbossedText("Hello there, Mr.Cheater", halfW, halfH-80, font, 50)
+    display.newEmbossedText("Did you really think it would be that easy?",  halfW, halfH, font, 25)
+
+    --display.newEmbossedText("I suggest you revert back",  halfW, halfH+50, font, 25)
+
+    announcer.say('microPenis')
+    --display.newEmbossedText("Did you really think it would be that that easy?",  halfW, halfH+50, font, 25)
+
+    background:setFillColor(unpack(colors.mursteinsRod))
+    return
+  end
 
   if(hardMode == 1)then
     background:setFillColor(colors.hardSkyGradient)
@@ -153,7 +170,7 @@ function scene:create( event )
   creditsButton:addEventListener("tap", gotoCredits)
   statsButton:addEventListener("tap", gotoStats)
 
-  local settingsButton = display.newImageRect( "Sprites/helpSprites.png",40,40 )
+  settingsButton = display.newImageRect( "Sprites/helpSprites.png",40,40 )
   settingsButton.x = screenW-30
   settingsButton.y = screenH-30
   settingsButton:addEventListener("tap", goToSettings)

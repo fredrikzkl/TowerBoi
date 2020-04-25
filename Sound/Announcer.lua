@@ -12,6 +12,7 @@ local options =
     channel = 3
 }
 
+
 local youCrazySonABitch = audio.loadSound(path.."you-crazy-son-of-a-bitch.wav")
 local ringaDingDingDong = audio.loadSound(path.."ringadingdingdong-motherfucker.wav")
 
@@ -35,12 +36,13 @@ local nice2Lyd = audio.loadSound( path.."nice-2.wav")
 local ggLyd = audio.loadSound(path.."gg.wav")
 local manYouCrazyLyd = audio.loadSound(path.."man-you-crazy.wav")
 
+local microPenis = audio.loadSound(path.."micro-penis-alarm-2.wav")
 
 local letsGo1 = audio.loadSound(path.."lets-go.wav")
 local letsGo2 = audio.loadSound(path.."lets-go-2.wav")
 local letsGo3 = audio.loadSound(path.."lets-go-3.wav")
 
---
+--Sound/Announcer/
 --  Functions
 --
 
@@ -49,7 +51,8 @@ local function say(key)
       audio.play(youCrazySonABitch, options)
   elseif(key == 'ringaDingDingDong')then
       audio.play(ringaDingDingDong, options)
-
+  elseif(key == 'microPenis')then
+      audio.play(microPenis)
   else
     print("Could not find announcer-key '" .. key "'")
   end

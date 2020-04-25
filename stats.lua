@@ -63,7 +63,7 @@ function scene:create( event )
 
     -- Load the scores
 		saveFile = event.params.save
-		compareHash(saveFile)
+
 
 	  local background = display.newRect(display.contentCenterX,display.contentCenterY ,screenW,screenH)
 

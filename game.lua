@@ -241,7 +241,7 @@ local function gameLoop()
 		Runtime:removeEventListener( "touch", klikk )
 		timer.cancel(gameLoopTimer)
 
-		print("Ferdig! Du bygget et hus på " .. result )
+		--print("Ferdig! Du bygget et hus på " .. result )
 
 		local ggbro = display.newEmbossedText("GG, bro", halfW, halfH*0.5+45, font, 50)
 
@@ -407,8 +407,8 @@ local function klikk(event)
 
 		--Øker hastigheten!
 		if(brikkeHastighet - hastighetsFaktor >= maksBrikkeHastighet)then
-		  --brikkeHastighet = brikkeHastighet - hastighetsFaktor
-      brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
+		  brikkeHastighet = brikkeHastighet - hastighetsFaktor
+      --brikkeHastighet = brikkeHastighet - 0 --DEBUG: Winning
 		end
 		timer.cancel(gameLoopTimer)
 		gameLoopTimer = nil

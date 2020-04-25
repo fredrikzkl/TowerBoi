@@ -39,6 +39,14 @@ local saveStructure  = {
   saveKey = ""
 }
 
+local function checkForCheat(saveFile)
+  local testHash = getHash(saveFile)
+  if(testHash ~= saveFile.saveKey)then
+    return true
+  end
+  return false
+end
+
 local function loadScores()
 	local file = io.open( filePath, "r" )
 
@@ -119,6 +127,6 @@ package["loadScores"] = (loadScores)
 package["addHighScore"] = (addHighScore)
 package["deleteHighScore"] = (deleteHighScore)
 package['toggleHardMode'] = toggleHardMode
-package['getHash'] = getHash
+package['checkForCheat'] = checkForCheat
 
 return package
