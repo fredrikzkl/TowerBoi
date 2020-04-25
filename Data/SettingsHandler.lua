@@ -6,10 +6,10 @@ local filePath = system.pathForFile( "settings.json", system.DocumentsDirectory 
 
 --Denne er bare for å vise hvordan filen ser ut
 local settingsTemplate  = {
-  master = 1.0,
-  music = 100, --Channel 4
-  sfx = 100, --Channel 2?
-  announcer = 100 --Channel 3
+  master = 2.0,
+  music = 50, --Channel 4
+  sfx = 50, --Channel 2?
+  announcer = 50 --Channel 3
 }
 
 local function loadSettings()
