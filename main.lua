@@ -1,7 +1,7 @@
  local composer = require( "composer" )
 
 --DENNE MÅ OPPDATERS NÅR SPILLET OPPDATERS
-version = "1.0.0"
+version = "1.2.0"
 -- Hide status bar
 display.setStatusBar( display.HiddenStatusBar )
 
